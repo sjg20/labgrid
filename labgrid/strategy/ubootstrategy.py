@@ -48,7 +48,17 @@ class UBootStrategy(Strategy):
         print(f'Bootstrapping U-Boot from dir {image_dir}')
 
         writer = self.target.get_driver("UBootWriterDriver")
-        writer.write(image_dir)
+        if get_var('do-send', '0') == '1':
+            recovery = self.target.get_driver("RecoveryProtocol")
+            recovery.set_enable(True)
+            self.power.on()
+            self.target.activate(self.reset)
+            self.reset.reset()
+            self.target.activate(self.console)
+            recovery.set_enable(False)
+            writer.send(image_dir)
+        else:
+            writer.write(image_dir)
         self.bootstrapped = True
 
     def start(self):
@@ -58,22 +68,22 @@ class UBootStrategy(Strategy):
         else:
             writer = self.target.get_driver("UBootWriterDriver")
             writer.prepare_boot()
+        if get_var('do-send', '0') == '0':
+            self.target.activate(self.console)
+            self.target.activate(self.reset)
 
-        self.target.activate(self.console)
-        self.target.activate(self.reset)
+            # Hold in reset across the power cycle, to avoid booting the
+            # board twice
+            self.reset.set_reset_enable(True)
+            if self.reset != self.power:
+                self.power.cycle()
 
-        # Hold in reset across the power cycle, to avoid booting the
-        # board twice
-        self.reset.set_reset_enable(True)
-        if self.reset != self.power:
-            self.power.cycle()
-
-        # Here we could await a console, if it depends on the board
-        # being powered. The above console activate would need be
-        # dropped. However, this doesn't seem to work:
-        # self.target.await_resources([self.console.port], 10.0)
-        # self.target.activate(self.console)  # for zynq_zybo
-        self.reset.set_reset_enable(False)
+            # Here we could await a console, if it depends on the board
+            # being powered. The above console activate would need be
+            # dropped. However, this doesn't seem to work:
+            # self.target.await_resources([self.console.port], 10.0)
+            # self.target.activate(self.console)  # for zynq_zybo
+            self.reset.set_reset_enable(False)
 
     def transition(self, status):
         if not isinstance(status, Status):
