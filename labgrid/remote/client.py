@@ -33,6 +33,7 @@ from ..util.proxy import proxymanager
 from ..util.helper import processwrapper
 from ..driver import Mode, ExecutionError
 from ..logging import basicConfig, StepLogger
+from ..var_dict import add_var
 
 txaio.config.loop = asyncio.get_event_loop()  # pylint: disable=no-member
 monkey_patch_max_msg_payload_size_ws_option()
@@ -70,6 +71,7 @@ class ClientSession(ApplicationSession):
         self.connected = self.config.extra['connected']
         self.args = self.config.extra.get('args')
         self.env = self.config.extra.get('env', None)
+        self.var_dict = self.config.extra.get('var_dict', None)
         self.role = self.config.extra.get('role', None)
         self.prog = self.config.extra.get('prog', os.path.basename(sys.argv[0]))
         self.monitor = self.config.extra.get('monitor', False)
@@ -1515,6 +1517,14 @@ def main():
         type=str,
         help="proxy connections via given ssh host"
     )
+    parser.add_argument(
+        '-V',
+        '--variable',
+        type=str,
+        nargs='*',
+        action='append',
+        help="Add a variable value (-V <var> <value>)"
+    )
     subparsers = parser.add_subparsers(
         dest='command',
         title='available subcommands',
@@ -1898,6 +1908,10 @@ def main():
                 print("No RemotePlace found in configuration file", file=sys.stderr)
                 exit(1)
             print(f"Selected role {role} and place {args.place} from configuration file")
+
+    for arg in args.variable or []:
+        name, value = arg
+        add_var(name, value)
 
     extra = {
         'args': args,
