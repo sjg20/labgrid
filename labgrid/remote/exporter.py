@@ -251,7 +251,7 @@ class SerialPortExport(ResourceExport):
                 '-C',
                 f'{self.port}:telnet:0:{start_params["path"]}:{self.local.speed} NONE 8DATABITS 1STOPBIT LOCAL',  # pylint: disable=line-too-long
             ]
-        self.logger.info("Starting ser2net with: %s", " ".join(cmd))
+        self.logger.debug(f"Starting ser2net with: {' '.join(cmd)}")
         self.child = subprocess.Popen(cmd)
         try:
             self.child.wait(timeout=0.5)
@@ -844,7 +844,7 @@ class ExporterSession(ApplicationSession):
         - export available resources
         - bail out if we are unsuccessful
         """
-        print(details)
+        logging.debug(details)
 
         prefix = f'org.labgrid.exporter.{self.name}'
         try:
@@ -952,7 +952,7 @@ class ExporterSession(ApplicationSession):
 
     async def add_resource(self, group_name, resource_name, cls, params):
         """Add a resource to the exporter and update status on the coordinator"""
-        print(
+        logging.debug(
             f"add resource {group_name}/{resource_name}: {cls}/{params}"
         )
         group = self.groups.setdefault(group_name, {})
@@ -979,7 +979,7 @@ class ExporterSession(ApplicationSession):
         """Update status on the coordinator"""
         resource = self.groups[group_name][resource_name]
         data = resource.asdict()
-        print(data)
+        logging.debug(data)
         await self.call(
             'org.labgrid.coordinator.set_resource', group_name, resource_name,
             data
