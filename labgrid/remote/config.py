@@ -15,6 +15,7 @@ class ResourceConfig:
     template_env = attr.ib(
         default=attr.Factory(dict), validator=attr.validators.instance_of(dict)
     )
+    verbose = attr.ib(default=False, validator=attr.validators.instance_of(bool))
 
     def __attrs_post_init__(self):
         env = jinja2.Environment(
@@ -30,6 +31,8 @@ class ResourceConfig:
                 f"{self.filename} could not be found"
             )
         rendered = template.render(self.template_env)
-        pprint(('rendered', rendered))
+        if self.verbose:
+            pprint(('rendered', rendered))
         self.data = load(rendered)
-        pprint(('loaded', self.data))
+        if self.verbose:
+            pprint(('loaded', self.data))
