@@ -820,6 +820,7 @@ class ExporterSession(ApplicationSession):
         self.hostname = self.config.extra['hostname']
         self.isolated = self.config.extra['isolated']
         self.address = self._transport.transport.get_extra_info('sockname')[0]
+        self.verbose = self.config.extra['verbose']
         self.checkpoint = time.monotonic()
         self.poll_task = None
 
@@ -859,7 +860,8 @@ class ExporterSession(ApplicationSession):
                 'name': self.name,
             }
             resource_config = ResourceConfig(
-                self.config.extra['resources'], config_template_env
+                self.config.extra['resources'], config_template_env,
+                verbose=self.verbose,
             )
             for group_name, group in resource_config.data.items():
                 group_name = str(group_name)
@@ -1025,6 +1027,13 @@ def main():
         help="enable debug mode"
     )
     parser.add_argument(
+        '-v',
+        '--verbose',
+        action='store_true',
+        default=False,
+        help="enable verbose mode"
+    )
+    parser.add_argument(
         '-i',
         '--isolated',
         action='store_true',
@@ -1046,7 +1055,8 @@ def main():
         'name': args.name or gethostname(),
         'hostname': args.hostname or (getfqdn() if args.fqdn else gethostname()),
         'resources': args.resources,
-        'isolated': args.isolated
+        'isolated': args.isolated,
+        'verbose': args.debug,
     }
 
     crossbar_url = args.crossbar
