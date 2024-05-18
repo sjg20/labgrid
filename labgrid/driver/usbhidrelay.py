@@ -4,13 +4,13 @@ from .common import Driver
 from ..factory import target_factory
 from ..resource.remote import NetworkHIDRelay
 from ..step import step
-from ..protocol import DigitalOutputProtocol
+from ..protocol import DigitalOutputProtocol, RecoveryProtocol
 from ..util.agentwrapper import AgentWrapper
 
 
 @target_factory.reg_driver
 @attr.s(eq=False)
-class HIDRelayDriver(Driver, DigitalOutputProtocol):
+class HIDRelayDriver(Driver, DigitalOutputProtocol, RecoveryProtocol):
     bindings = {
         "relay": {"HIDRelay", "NetworkHIDRelay"},
     }
@@ -46,3 +46,8 @@ class HIDRelayDriver(Driver, DigitalOutputProtocol):
         if self.relay.invert:
             status = not status
         return status
+
+    @Driver.check_active
+    @step()
+    def set_enable(self, enable):
+        self.set(enable)

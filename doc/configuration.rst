@@ -2670,6 +2670,7 @@ Binds to:
 
 Implements:
   - :any:`DigitalOutputProtocol`
+  - :any:`RecoveryProtocol`
 
 .. code-block:: yaml
 
