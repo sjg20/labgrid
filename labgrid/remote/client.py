@@ -1988,7 +1988,10 @@ def main():
                 print("This is likely caused by an error or missing driver in the environment configuration.", file=sys.stderr)  # pylint: disable=line-too-long
             elif isinstance(e, InvalidConfigError):
                 print("This is likely caused by an error in the environment configuration or invalid\nresource information provided by the coordinator.", file=sys.stderr)  # pylint: disable=line-too-long
-
+        except subprocess.CalledProcessError as exc:
+            print(f"Command failure: {' '.join(exc.cmd)}")
+            for line in exc.output.splitlines():
+                print(line.decode('utf-8'))
             exitcode = 1
         except ConnectionError as e:
             print(f"Could not connect to coordinator: {e}", file=sys.stderr)
