@@ -8,10 +8,15 @@ from .common import Strategy, StrategyError
 
 
 class Status(enum.Enum):
-    unknown = 0
-    off = 1
-    uboot = 2
-    shell = 3
+    """States supported by this strategy:
+
+        unknown: State is not known
+        off: Power is off
+        start: Board has started booting
+        uboot: Board has stopped at the U-Boot prompt
+        shell: Board has stopped at the Linux prompt
+    """
+    unknown, off, start, uboot, shell = range(5)
 
 
 @target_factory.reg_driver
@@ -23,12 +28,31 @@ class UBootStrategy(Strategy):
         "console": "ConsoleProtocol",
         "uboot": "UBootDriver",
         "shell": "ShellDriver",
+        "reset": "ResetProtocol",
     }
 
     status = attr.ib(default=Status.unknown)
 
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
+
+    def start(self):
+        "Start U-Boot, by powering on / resetting the board"""
+        self.target.activate(self.console)
+        self.target.activate(self.reset)
+
+        # Hold in reset across the power cycle, to avoid booting the
+        # board twice
+        self.reset.set_reset_enable(True)
+        if self.reset != self.power:
+            self.power.cycle()
+
+        # Here we could await a console, if it depends on the board
+        # being powered. The above console activate would need be
+        # dropped. However, this doesn't seem to work:
+        # self.target.await_resources([self.console.port], 10.0)
+        # self.target.activate(self.console)  # for zynq_zybo
+        self.reset.set_reset_enable(False)
 
     def transition(self, status):
         if not isinstance(status, Status):
@@ -41,11 +65,11 @@ class UBootStrategy(Strategy):
             self.target.deactivate(self.console)
             self.target.activate(self.power)
             self.power.off()
-        elif status == Status.uboot:
+        elif status == Status.start:
             self.transition(Status.off)
-            self.target.activate(self.console)
-            # cycle power
-            self.power.cycle()
+            self.start()
+        elif status == Status.uboot:
+            self.transition(Status.start)
             # interrupt uboot
             self.target.activate(self.uboot)
             output = self.console.read_output()
