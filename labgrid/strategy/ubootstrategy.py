@@ -1,6 +1,7 @@
 import enum
 
 import attr
+import sys
 
 from ..factory import target_factory
 from .common import Strategy, StrategyError
@@ -47,6 +48,9 @@ class UBootStrategy(Strategy):
             self.power.cycle()
             # interrupt uboot
             self.target.activate(self.uboot)
+            output = self.console.read_output()
+            sys.stdout.buffer.write(output)
+            print('\nU-Boot is ready')
         elif status == Status.shell:
             # transition to uboot
             self.transition(Status.uboot)
