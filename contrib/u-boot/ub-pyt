@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Boot U-Boot on a particular target and run selected tests
+
+usage() {
+	echo "Failed: $1"
+	echo
+	echo "Usage: ub-pyt [-cnst] <target> <test_spec>"
+	echo " -c  Run 'make mrproper' before building"
+	echo " -n  Don't build U-Boot"
+	echo " -s  Send over USB (instead of writing to boot media)"
+	echo " -t  Don't bootstrap U-Boot"
+	echo
+	echo "<test_spec> is the tests to run, e.g. not tpm"
+	exit 1
+}
+
+mydir=$(dirname $0)
+
+. ${mydir}/lg-env
+
+allowed_args="cnst"
+. ${mydir}/get_args.sh
+
+tmpfile=$(mktemp)
+
+# Find out the board name and path
+if lg-client -r "${target}" -a query UBootProviderDriver:board,build_path > "${tmpfile}"; then
+	readarray -t a < ${tmpfile}
+	rm ${tmpfile}
+	board="${a[0]}"
+	build_path="${a[1]}"
+else
+	echo "Failed to obtain build information"
+	exit 1
+fi
+
+# Run the tests, using this information
+PYTHONPATH="${UB_TEST_HOOKS}/py/$hostname" ./test/py/test.py \
+	--bd "${board}" --configure --build-dir "${build_path}" --id "${target}" -k "$*"

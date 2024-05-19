@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Boot U-Boot on a particular target and check that it starts up OK
+
+usage() {
+	echo "Failed: $1"
+	echo
+	echo "Usage: ut-smoke [-cs] <target>"
+	echo " -c  Run 'make mrproper' before building"
+	echo " -n  Don't build U-Boot"
+	echo " -s  Send over USB (instead of writing to boot media)"
+	echo " -t  Don't bootstrap U-Boot"
+	exit 1
+}
+
+mydir=$(dirname $0)
+
+. ${mydir}/lg-env
+
+allowed_args="cnst"
+. ${mydir}/get_args.sh
+
+cd ${mydir}
+
+if ! labgrid-client -p ${target} acquire; then
+	exit 1
+fi
+
+ret=0
+pytest --lg-env "${LG_ENV}" --lg-coordinator="${LG_CROSSBAR}" \
+	--lg-log --lg-colored-steps --lg-target ${target} \
+	${lg_vars} \
+	 -k test_uboot_smoke || ret=$?
+
+if ! labgrid-client -p ${target} release; then
+	exit $?
+fi
+exit $ret

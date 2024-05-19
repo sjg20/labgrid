@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Boot U-Boot to the command prompt on a particular target and bring up a
+# console
+
+usage() {
+	echo "Failed: $1"
+	echo
+	echo "Usage: ub-cli [-csv] <target>"
+	echo " -c  Run 'make mrproper' before building"
+	echo " -n  Don't build U-Boot"
+	echo " -s  Send over USB (instead of writing to boot media)"
+	echo " -t  Don't bootstrap U-Boot"
+	echo " -v  Verbose mode"
+	exit 1
+}
+
+mydir=$(dirname $0)
+
+. ${mydir}/lg-env
+
+allowed_args="cnstv"
+. ${mydir}/get_args.sh
+
+ret=0
+labgrid-client ${V} ${vars} -r ${target} -s uboot -a console || ret=$?
+
+labgrid-client ${V} -r "${target}" release
+
+[[ $ret -ne 0 ]] && exit $ret
