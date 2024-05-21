@@ -2014,6 +2014,8 @@ Arguments:
   - login_timeout (int, default=60): timeout for password/login prompt detection
   - for other arguments, see `UBootDriver`_
 
+.. _UBootProviderInfo:
+
 UBootProviderDriver
 ~~~~~~~~~~~~~~~~~~~
 
@@ -2107,6 +2109,8 @@ Tools:
 
    tools:
      buildman: "buildman.stable"
+
+.. _UBootWriterInfo:
 
 UBootWriterDriver
 ~~~~~~~~~~~~~~~~~
@@ -3864,6 +3868,8 @@ the "shell" state:
 
 This command would transition directly into a Linux shell and
 activate the `ShellDriver`_.
+
+.. _UBootStrategyInfo:
 
 UBootStrategy
 ~~~~~~~~~~~~~
