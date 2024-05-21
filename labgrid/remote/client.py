@@ -564,7 +564,7 @@ class ClientSession(ApplicationSession):
         res = await self.call('org.labgrid.coordinator.acquire_place', place.name)
 
         if res:
-            print(f"acquired place {place.name}")
+            logging.info(f"acquired place {place.name}")
             return
 
         # check potential failure causes
@@ -598,7 +598,7 @@ class ClientSession(ApplicationSession):
         if not res:
             raise ServerError(f"failed to release place {place.name}")
 
-        print(f"released place {place.name}")
+        logging.info(f"released place {place.name}")
 
     async def release_from(self):
         """Release a place, but only if acquired by a specific user"""
