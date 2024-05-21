@@ -1,6 +1,6 @@
-import enum
-
 import attr
+import enum
+from pexpect import TIMEOUT
 import sys
 import time
 
@@ -104,9 +104,16 @@ class UBootStrategy(Strategy):
             self.start()
         elif status == Status.uboot:
             self.transition(Status.start)
+
             start = time.time()
-            # interrupt uboot
-            self.target.activate(self.uboot)
+            try:
+                # interrupt uboot
+                self.target.activate(self.uboot)
+            except TIMEOUT:
+                output = self.console.read_output()
+                sys.stdout.buffer.write(output)
+                raise
+
             output = self.console.read_output()
             sys.stdout.buffer.write(output)
             duration = time.time() - start
