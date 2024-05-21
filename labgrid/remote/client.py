@@ -1338,7 +1338,15 @@ class ClientSession(ApplicationSession):
             print("Exiting...\n", file=sys.stderr)
     export.needs_target = True
 
-    def print_version(self):
+    async def query(self, place, target):
+        for item in self.args.items:
+            cls_name, names = item.split(':')
+            drv = target.get_driver(cls_name)
+            for name in names.split(','):
+                print(drv.query_info(name))
+    query.needs_target = True
+
+    def print_version(self, target):
         print(labgrid_version())
 
 
@@ -1861,6 +1869,11 @@ def main():
                            help="output format (default: %(default)s)")
     subparser.add_argument('filename', help='output filename')
     subparser.set_defaults(func=ClientSession.export)
+
+    subparser = subparsers.add_parser('query', help="query information")
+    subparser.add_argument('items', type=str, action='append',
+                           help='item to query (class:name)')
+    subparser.set_defaults(func=ClientSession.query)
 
     subparser = subparsers.add_parser('version', help="show version")
     subparser.set_defaults(func=ClientSession.print_version)
