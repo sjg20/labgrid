@@ -32,6 +32,9 @@ class UBootStrategy(Strategy):
     Args:
         send_only (bool): True if the board only supports sending over USB, no
             flash
+        recovery_reset (bool): True if the board's recovery signal must be
+            asserted while resetting (e.g. to make it boot from SD instead of
+            internal flash)
 
     Variables:
         do-build: Build U-Boot before bootstrapping it
@@ -49,6 +52,7 @@ class UBootStrategy(Strategy):
 
     status = attr.ib(default=Status.unknown)
     send_only = attr.ib(default=False, validator=attr.validators.instance_of(bool))
+    recovery_reset = attr.ib(default=False, validator=attr.validators.instance_of(bool))
 
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
@@ -109,6 +113,9 @@ class UBootStrategy(Strategy):
             writer.prepare_boot()
         if not self.use_send():
             self.target.activate(self.console)
+            if self.recovery_reset:
+                self.target.activate(self.recovery)
+                self.recovery.set_enable(True)
             if self.reset:
                 self.target.activate(self.reset)
 
@@ -125,6 +132,8 @@ class UBootStrategy(Strategy):
             # self.target.activate(self.console)  # for zynq_zybo
             if self.reset:
                 self.reset.set_reset_enable(False)
+            if self.recovery_reset:
+                self.recovery.set_enable(False)
 
     def transition(self, status):
         if not isinstance(status, Status):
