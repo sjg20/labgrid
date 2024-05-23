@@ -161,7 +161,6 @@ class USBStorageDriver(Driver):
                 "dd",
                 f"if={remote_path}",
                 f"of={target}",
-                "oflag=direct",
                 f"bs={block_size}",
                 f"skip={skip}",
                 f"seek={seek}",
@@ -207,9 +206,6 @@ class USBStorageDriver(Driver):
         print('dd', ' '.join(args))
         processwrapper.check_output(
             self.storage.command_prefix + args,
-        )
-        processwrapper.check_output(
-            self.storage.command_prefix + ['sync'],
         )
         duration = time.time() - start
         print(f'Image written in {duration:.1f}s')
