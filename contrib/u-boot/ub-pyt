@@ -8,6 +8,7 @@ usage() {
 	echo "Usage: ub-pyt [-cnst] <target> <test_spec>"
 	echo " -c  Run 'make mrproper' before building"
 	echo " -n  Don't build U-Boot"
+	echo " -r  Don't reset the board, just connect as is"
 	echo " -s  Send over USB (instead of writing to boot media)"
 	echo " -t  Don't bootstrap U-Boot"
 	echo
@@ -19,7 +20,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="cnst"
+allowed_args="cnrst"
 . ${mydir}/get_args.sh
 
 tmpfile=$(mktemp)
@@ -37,4 +38,5 @@ fi
 
 # Run the tests, using this information
 PYTHONPATH="${UB_TEST_HOOKS}/py/$hostname" ./test/py/test.py \
-	--bd "${board}" --configure --build-dir "${build_path}" --id "${target}" -k "$*"
+	--bd "${board}" --configure ${no_prompt_wait} \
+	--build-dir "${build_path}" --id "${target}" -k "$*"

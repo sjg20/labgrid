@@ -9,6 +9,7 @@ usage() {
 	echo "Usage: ub-int [-csv] <target>"
 	echo " -c  Run 'make mrproper' before building"
 	echo " -n  Don't build U-Boot"
+	echo " -r  Don't reset the board, just connect as is"
 	echo " -s  Send over USB (instead of writing to boot media)"
 	echo " -t  Don't bootstrap U-Boot"
 	echo " -v  Verbose mode"
@@ -19,11 +20,11 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="cnstv"
+allowed_args="cnrstv"
 . ${mydir}/get_args.sh
 
 ret=0
-labgrid-client ${V} ${vars} -r ${target} -s start -a console || ret=$?
+labgrid-client ${V} ${vars} -r ${target} ${strategy} -a console || ret=$?
 
 labgrid-client ${V} -r "${target}" release
 

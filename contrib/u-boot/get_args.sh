@@ -9,6 +9,9 @@ export build=1
 export clean=0
 export V=
 export send=0
+export reset=1
+export strategy="-s start"
+export no_prompt_wait=
 
 while getopts "${allowed_args}" opt; do
 	case $opt in
@@ -20,6 +23,12 @@ while getopts "${allowed_args}" opt; do
 	  ;;
 	s )
 	  send=1
+	  ;;
+	r )
+	  reset=0
+	  bootstrap=0
+	  strategy=
+	  no_prompt_wait="--no-prompt-wait"
 	  ;;
 	t )
 	  bootstrap=0
