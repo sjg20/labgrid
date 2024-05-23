@@ -826,7 +826,7 @@ class ClientSession(ApplicationSession):
         # check for valid resources
         assert port is not None, "Port is not set"
 
-        call = ['microcom', '-s', str(resource.speed), '-t', f"{host}:{port}"]
+        call = ['microcom', '-q', '-s', str(resource.speed), '-t', f"{host}:{port}"]
 
         if listen_only:
             call.append("--listenonly")
