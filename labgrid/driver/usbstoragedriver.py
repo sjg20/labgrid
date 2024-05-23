@@ -161,9 +161,11 @@ class USBStorageDriver(Driver):
                 "dd",
                 f"if={remote_path}",
                 f"of={target}",
+                "oflag=direct",
                 f"bs={block_size}",
                 f"skip={skip}",
                 f"seek={seek}",
+                "conv=fdatasync"
             ]
             if count is not None:
                 args.append(f'count={count}')
