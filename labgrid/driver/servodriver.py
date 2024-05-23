@@ -45,8 +45,8 @@ class ServoDriver(ConsoleExpectMixin, Driver):
         processwrapper.check_output(cmd)
 
     @Driver.check_active
-    @step(title='do_reset', args=['mode'])
-    def do_reset(self, mode='cold'):
+    @step(title='do_reset', args=['delay', 'mode'])
+    def do_reset(self, delay, mode='cold'):
         """Reset the device
 
         This creates a 200ms reset pulse on either cold-/warm-reset line.
@@ -57,7 +57,8 @@ class ServoDriver(ConsoleExpectMixin, Driver):
         if not mode in ['warm', 'cold']:
             raise ExecutionError(
                 f"Setting mode '{mode}' not supported by ServoDriver")
-        self.dut_control(f'{mode}_reset:on', 'sleep:.2', f'{mode}_reset:off')
+        self.dut_control(f'{mode}_reset:on', f'sleep:{delay:f}',
+                         f'{mode}_reset:off')
 
     @Driver.check_active
     @step(title='set_reset_enable', args=['enable', 'mode'])
