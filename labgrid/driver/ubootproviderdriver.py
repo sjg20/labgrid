@@ -84,7 +84,7 @@ class UBootProviderDriver(Driver):
             '-w',
             '--board', board,
             '-W',
-            '-ve',
+            '-ve', '-m',
         ]
 
         # If we have a commit, use a worktree. Otherwise we just use the source
