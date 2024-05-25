@@ -47,6 +47,7 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
         self._status = 0
+        self._output = b''
 
         if self.boot_expression:
             import warnings
@@ -185,6 +186,15 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
 
             last_before = before
 
+        output = self.console.read_output()
+        prompt_len = len(self.prompt) + 1  # add space
+        print('output', output[-prompt_len:])
+        if output[-prompt_len:-1] == self.prompt.encode('utf-8'):
+            self._output = output[:-prompt_len - 1]
+            print('dropped')
+        else:
+            print('bad output', output[-prompt_len:], self.prompt + ' ')
+
         if self.prompt:
             self._check_prompt()
 
@@ -213,3 +223,6 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
                 raise Exception(f"{name} not found in boot_commands") from e
         else:
             self.console.sendline(self.boot_command)
+
+    def read_output(self):
+        return self._output

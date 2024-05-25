@@ -1903,7 +1903,7 @@ def main():
     subparser.set_defaults(func=ClientSession.export)
 
     subparser = subparsers.add_parser('query', help="query information")
-    subparser.add_argument('items', type=str, action='append',
+    subparser.add_argument('items', type=str, nargs='*',
                            help='item to query (class:name)')
     subparser.set_defaults(func=ClientSession.query)
 

@@ -114,7 +114,8 @@ class UBootStrategy(Strategy):
                 sys.stdout.buffer.write(output)
                 raise
 
-            output = self.console.read_output()
+            output = self.uboot.read_output()
+            #output = self.console.read_output()
             sys.stdout.buffer.write(output)
             duration = time.time() - start
             print(f'\nU-Boot is ready in {duration:.1f}s')

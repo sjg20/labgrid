@@ -21,6 +21,7 @@ class SerialDriver(ConsoleExpectMixin, Driver, ConsoleProtocol):
 
     txdelay = attr.ib(default=0.0, validator=attr.validators.instance_of(float))
     timeout = attr.ib(default=3.0, validator=attr.validators.instance_of(float))
+    spl_banner_times = attr.ib(default=-1, validator=attr.validators.instance_of(int))
 
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
@@ -114,3 +115,11 @@ class SerialDriver(ConsoleExpectMixin, Driver, ConsoleProtocol):
 
     def __str__(self):
         return f"SerialDriver({self.target.name})"
+
+    def query_info(self, name):
+        if name == 'txdelay':
+            return self.txdelay
+        elif name == 'spl_banner_times':
+            if self.spl_banner_times >= 0:
+                return self.spl_banner_times
+        return None
