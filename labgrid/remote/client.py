@@ -28,7 +28,7 @@ from .common import (ResourceEntry, ResourceMatch, Place, Reservation, Reservati
 from .. import Environment, Target, target_factory
 from ..exceptions import NoDriverFoundError, NoResourceFoundError, InvalidConfigError
 from ..resource.remote import RemotePlaceManager, RemotePlace
-from ..util import diff_dict, flat_dict, filter_dict, dump, atomic_replace, labgrid_version, Timeout
+from ..util import diff_dict, flat_dict, filter_dict, dump, atomic_replace, labgrid_version, Timeout, term
 from ..util.proxy import proxymanager
 from ..util.helper import processwrapper
 from ..driver import Mode, ExecutionError
@@ -826,39 +826,11 @@ class ClientSession(ApplicationSession):
         # check for valid resources
         assert port is not None, "Port is not set"
 
-        call = ['microcom', '-q', '-s', str(resource.speed), '-t', f"{host}:{port}"]
-
-        if listen_only:
-            call.append("--listenonly")
-
-        if logfile:
-            call.append(f"--logfile={logfile}")
-        logging.info(f"connecting to {resource} calling {' '.join(call)}")
-        try:
-            p = await asyncio.create_subprocess_exec(*call)
-        except FileNotFoundError as e:
-            raise ServerError(f"failed to execute microcom: {e}")
-        while p.returncode is None:
-            try:
-                await asyncio.wait_for(p.wait(), 1.0)
-            except asyncio.TimeoutError:
-                # subprocess is still running
-                pass
-
-            try:
-                self._check_allowed(place)
-            except UserError:
-                p.terminate()
-                try:
-                    await asyncio.wait_for(p.wait(), 1.0)
-                except asyncio.TimeoutError:
-                    # try harder
-                    p.kill()
-                    await asyncio.wait_for(p.wait(), 1.0)
-                raise
-        if p.returncode:
-            print("connection lost", file=sys.stderr)
-        return p.returncode
+        if True:
+            await term.microcom(self, host, port, place, resource, logfile,
+                                listen_only)
+        else:
+            pass
 
     async def console(self, place, target):
         while True:
