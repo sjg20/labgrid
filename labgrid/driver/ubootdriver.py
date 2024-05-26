@@ -1,5 +1,6 @@
 """The U-Boot Module contains the UBootDriver"""
 import attr
+import time
 from pexpect import TIMEOUT
 
 from ..factory import target_factory
@@ -200,6 +201,7 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
 
         for command in self.init_commands:
             self._run_check(command)
+        #time.sleep(2)
 
     @Driver.check_active
     @step()

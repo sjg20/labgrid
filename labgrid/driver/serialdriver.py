@@ -2,6 +2,7 @@ import attr
 from pexpect import TIMEOUT
 import serial
 import serial.rfc2217
+import time
 
 from ..factory import target_factory
 from ..protocol import ConsoleProtocol
@@ -37,11 +38,14 @@ class SerialDriver(ConsoleExpectMixin, Driver, ConsoleProtocol):
         self.status = 0
 
     def on_activate(self):
+        print('activate')
         if isinstance(self.port, SerialPort):
             self.serial.port = self.port.port
             self.serial.baudrate = self.port.speed
+            print('port', self.serial.port)
         else:
             host, port = proxymanager.get_host_and_port(self.port)
+            print('host', host, port, self.port.protocol)
             if self.port.protocol == "rfc2217":
                 self.serial.port = f"rfc2217://{host}:{port}?ign_set_control&timeout={self.timeout}"
             elif self.port.protocol == "raw":
@@ -94,7 +98,15 @@ class SerialDriver(ConsoleExpectMixin, Driver, ConsoleProtocol):
         Arguments:
         data -- data to write, must be bytes
         """
-        return self.serial.write(data)
+        if self.txdelay:
+            #print(f'Write {len(data)} bytes: {data} (with {self.txdelay:f}s txdelay)')
+            count = 0
+            for i in range(len(data)):
+                time.sleep(self.txdelay)
+                count += self.serial.write(data[i:i+1])
+            return count
+        else:
+            return self.serial.write(data)
 
     def open(self):
         """Opens the serialport, does nothing if it is already open"""

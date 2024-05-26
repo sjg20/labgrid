@@ -803,34 +803,38 @@ class ClientSession(ApplicationSession):
 
     async def _console(self, place, target, timeout, *, logfile=None, loop=False, listen_only=False):
         name = self.args.name
-        from ..resource import NetworkSerialPort
-        resource = target.get_resource(NetworkSerialPort, name=name, wait_avail=False)
-
-        # async await resources
-        timeout = Timeout(timeout)
-        while True:
-            target.update_resources()
-            if resource.avail or (not loop and timeout.expired):
-                break
-            await asyncio.sleep(0.1)
-
-        # use zero timeout to prevent blocking sleeps
-        target.await_resources([resource], timeout=0.0)
+        from ..resource import NetworkSerialPort, SerialPort
+        from ..protocol import ConsoleProtocol
 
         if not place.acquired:
             print("place released")
             return 255
 
-        host, port = proxymanager.get_host_and_port(resource)
+        if False:
+            resource = target.get_resource(NetworkSerialPort, name=name,
+                                           wait_avail=False)
 
-        # check for valid resources
-        assert port is not None, "Port is not set"
+            # async await resources
+            timeout = Timeout(timeout)
+            while True:
+                target.update_resources()
+                if resource.avail or (not loop and timeout.expired):
+                    break
+                await asyncio.sleep(0.1)
 
-        if True:
+            # use zero timeout to prevent blocking sleeps
+            target.await_resources([resource], timeout=0.0)
+            host, port = proxymanager.get_host_and_port(resource)
+
+            # check for valid resources
+            assert port is not None, "Port is not set"
             await term.microcom(self, host, port, place, resource, logfile,
                                 listen_only)
         else:
-            pass
+            #print('target', target)
+            #await asyncio.sleep(2)
+            console = target.get_driver(ConsoleProtocol, name=name)
+            await term.internal(console)
 
     async def console(self, place, target):
         while True:
