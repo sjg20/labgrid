@@ -48,7 +48,7 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
         self._status = 0
-        self._output = b''
+        #self._output = b''
 
         if self.boot_expression:
             import warnings
@@ -188,13 +188,22 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
             last_before = before
 
         output = self.console.read_output()
-        prompt_len = len(self.prompt) + 1  # add space
-        print('output', output[-prompt_len:])
-        if output[-prompt_len:-1] == self.prompt.encode('utf-8'):
-            self._output = output[:-prompt_len - 1]
-            print('dropped')
+        pos = output.find(self.autoboot.encode('utf-8'))
+        if pos == -1:
+            pos = output.find(self.prompt.encode('utf-8'))
+
+        if pos == -1:
+            self._output = output
         else:
-            print('bad output', output[-prompt_len:], self.prompt + ' ')
+            self._output = output[:pos]
+
+        #prompt_len = len(self.prompt) + 1  # add space
+        #print('output', output[-prompt_len:])
+        #if output[-prompt_len:-1] == self.prompt.encode('utf-8'):
+            #self._output = output[:-prompt_len - 1]
+            #print('dropped')
+        #else:
+            #print('bad output', output[-prompt_len:], self.prompt + ' ')
 
         if self.prompt:
             self._check_prompt()

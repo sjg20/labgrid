@@ -802,15 +802,17 @@ class ClientSession(ApplicationSession):
             drv.set(False)
 
     async def _console(self, place, target, timeout, *, logfile=None, loop=False, listen_only=False):
-        name = self.args.name
-        from ..resource import NetworkSerialPort, SerialPort
         from ..protocol import ConsoleProtocol
+
+        name = self.args.name
 
         if not place.acquired:
             print("place released")
             return 255
 
         if False:
+            from ..resource import NetworkSerialPort, SerialPort
+
             resource = target.get_resource(NetworkSerialPort, name=name,
                                            wait_avail=False)
 

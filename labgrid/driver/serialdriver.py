@@ -38,14 +38,11 @@ class SerialDriver(ConsoleExpectMixin, Driver, ConsoleProtocol):
         self.status = 0
 
     def on_activate(self):
-        print('activate')
         if isinstance(self.port, SerialPort):
             self.serial.port = self.port.port
             self.serial.baudrate = self.port.speed
-            print('port', self.serial.port)
         else:
             host, port = proxymanager.get_host_and_port(self.port)
-            print('host', host, port, self.port.protocol)
             if self.port.protocol == "rfc2217":
                 self.serial.port = f"rfc2217://{host}:{port}?ign_set_control&timeout={self.timeout}"
             elif self.port.protocol == "raw":

@@ -1,4 +1,5 @@
 import asyncio
+import collections
 import logging
 import os
 import sys
@@ -6,6 +7,8 @@ from pexpect import TIMEOUT
 import serial_asyncio
 import termios
 import time
+
+EXIT_CHAR = 0x1d    # FS (Ctrl + ])
 
 async def microcom(session, host, port, place, resource, logfile, listen_only):
     call = ['microcom', '-q', '-s', str(resource.speed), '-t', f"{host}:{port}"]
@@ -135,6 +138,9 @@ async def transfer_data(reader, writer):
         await writer.write(data)
 
 async def run(console):
+    prev = collections.deque(maxlen=2)
+
+    deadline = None
     while True:
         try:
             #print('con')
@@ -151,8 +157,18 @@ async def run(console):
         #print('data', data)
         if data:
             #print('data', data)
+            if not deadline:
+                deadline = time.monotonic() + 1
+            prev.extend(data)
+            count = prev.count(EXIT_CHAR)
+            if count == 2:
+                break
+
             console.write(data)
-        time.sleep(.01)
+        if deadline and time.monotonic() > deadline:
+            prev.clear()
+            deadline = None
+        time.sleep(.005)
 
 
 async def internal(console):
@@ -164,19 +180,26 @@ async def internal(console):
     #tty.setraw(fd)
 
     try:
-        fd = sys.stdin.fileno()
-        old = termios.tcgetattr(fd)
-        new = termios.tcgetattr(fd)
-        new[3] = new[3] & ~(termios.ICANON | termios.ECHO | termios.ISIG)
-        new[6][termios.VMIN] = 0
-        new[6][termios.VTIME] = 0
-        termios.tcsetattr(fd, termios.TCSANOW, new)
+        #fd = sys.stdin.fileno()
+        #old = termios.tcgetattr(fd)
+        #new = termios.tcgetattr(fd)
+        #new[3] = new[3] & ~(termios.ICANON | termios.ECHO | termios.ISIG)
+        #new[6][termios.VMIN] = 0
+        #new[6][termios.VTIME] = 0
+        #termios.tcsetattr(fd, termios.TCSANOW, new)
 
         #print('console.serial', console.serial)
         #console.serial.nonblocking()
 
         #cons_reader, cons_writer = await stdio()
         done = False
+
+        #time.sleep(1)
+
+        #output = console.read_output()
+        #output = self.console.read_output()
+        #sys.stdout.buffer.write(output)
+        print(f'\nU-Boot is ready')
 
         await run(console)
 
@@ -198,4 +221,5 @@ async def internal(console):
                 #await writer.drain()
 
     finally:
-        termios.tcsetattr(fd, termios.TCSAFLUSH, old)
+        pass
+        #termios.tcsetattr(fd, termios.TCSAFLUSH, old)

@@ -118,7 +118,7 @@ class UBootStrategy(Strategy):
             #output = self.console.read_output()
             sys.stdout.buffer.write(output)
             duration = time.time() - start
-            print(f'\nU-Boot is ready in {duration:.1f}s')
+            #print(f'\nU-Boot is ready in {duration:.1f}s')
         elif status == Status.shell:
             # transition to uboot
             self.transition(Status.uboot)
