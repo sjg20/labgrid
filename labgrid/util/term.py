@@ -54,9 +54,11 @@ async def run(serial):
     next_serial = time.monotonic()
     txdelay = serial.txdelay
     while True:
+        activity = bool(to_serial)
         try:
             data = serial.read(size=BUF_SIZE, timeout=0.001)
             if data:
+                activity = True
                 sys.stdout.buffer.write(data)
                 sys.stdout.buffer.flush()
 
@@ -65,8 +67,9 @@ async def run(serial):
 
         data = os.read(sys.stdin.fileno(), BUF_SIZE)
         if data:
+            activity = True
             if not deadline:
-                deadline = time.monotonic() + 500  # 500ms
+                deadline = time.monotonic() + .5  # seconds
             prev.extend(data)
             count = prev.count(EXIT_CHAR)
             if count == 2:
@@ -75,13 +78,15 @@ async def run(serial):
             to_serial += data
 
         if to_serial and time.monotonic() > next_serial:
-            serial.write(to_serial[:1])
+            serial._write(to_serial[:1])
             to_serial = to_serial[1:]
+            next_serial += txdelay
 
         if deadline and time.monotonic() > deadline:
             prev.clear()
             deadline = None
-        time.sleep(.005)
+        if not activity:
+            time.sleep(.001)
 
     # Blank line to move past any partial output
     print()

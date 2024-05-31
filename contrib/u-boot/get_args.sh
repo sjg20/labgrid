@@ -4,6 +4,12 @@
 # This decodes and removes the flags and the target argument
 # It returns with the next argument in $1
 
+# Usage
+# . get_arg.sh
+#
+# The allowed_args variable must be set to the list of valid args for this
+# script, e.g. "cnstv"
+
 export bootstrap=1
 export build=1
 export clean=0
