@@ -847,7 +847,7 @@ class ClientSession(ApplicationSession):
                 break
             if not self.args.loop:
                 if res:
-                    exc = InteractiveCommandError("microcom error")
+                    exc = InteractiveCommandError("console error")
                     exc.exitcode = res
                     raise exc
                 break
