@@ -137,14 +137,16 @@ async def transfer_data(reader, writer):
         print('data', data)
         await writer.write(data)
 
-async def run(console):
+async def run(serial):
     prev = collections.deque(maxlen=2)
 
     deadline = None
+    to_serial = b''
+    next_serial = time.monotonic()
+    txdelay = serial.txdelay
     while True:
         try:
-            #print('con')
-            data = console.read(size=BUF_SIZE, timeout=0.001)
+            data = serial.read(size=BUF_SIZE, timeout=0.001)
             if data:
                 sys.stdout.buffer.write(data)
                 sys.stdout.buffer.flush()
@@ -152,26 +154,30 @@ async def run(console):
         except TIMEOUT:
             pass
 
-        #print('stdin')
         data = os.read(sys.stdin.fileno(), BUF_SIZE)
-        #print('data', data)
         if data:
-            #print('data', data)
             if not deadline:
-                deadline = time.monotonic() + 1
+                deadline = time.monotonic() + 500  # 500ms
             prev.extend(data)
             count = prev.count(EXIT_CHAR)
             if count == 2:
                 break
 
-            console.write(data)
+            to_serial += data
+
+        if to_serial and time.monotonic() > next_serial:
+            serial.write(to_serial[:1])
+            to_serial = to_serial[1:]
+
         if deadline and time.monotonic() > deadline:
             prev.clear()
             deadline = None
         time.sleep(.005)
 
+    # Blank line to move past any partial output
+    print()
 
-async def internal(console):
+async def internal(serial):
     # Set up the console for use
     # Based on https://github.com/pyserial/pyserial/blob/master/examples/rfc2217_server.py
     # and https://github.com/pyserial/pyserial/blob/master/serial/tools/miniterm.py
@@ -180,13 +186,13 @@ async def internal(console):
     #tty.setraw(fd)
 
     try:
-        #fd = sys.stdin.fileno()
-        #old = termios.tcgetattr(fd)
-        #new = termios.tcgetattr(fd)
-        #new[3] = new[3] & ~(termios.ICANON | termios.ECHO | termios.ISIG)
-        #new[6][termios.VMIN] = 0
-        #new[6][termios.VTIME] = 0
-        #termios.tcsetattr(fd, termios.TCSANOW, new)
+        fd = sys.stdin.fileno()
+        old = termios.tcgetattr(fd)
+        new = termios.tcgetattr(fd)
+        new[3] = new[3] & ~(termios.ICANON | termios.ECHO | termios.ISIG)
+        new[6][termios.VMIN] = 0
+        new[6][termios.VTIME] = 0
+        termios.tcsetattr(fd, termios.TCSANOW, new)
 
         #print('console.serial', console.serial)
         #console.serial.nonblocking()
@@ -199,9 +205,9 @@ async def internal(console):
         #output = console.read_output()
         #output = self.console.read_output()
         #sys.stdout.buffer.write(output)
-        print(f'\nU-Boot is ready')
+        #print(f'\nU-Boot is ready')
 
-        await run(console)
+        await run(serial)
 
         #ser_reader, ser_writer = await use_serial_connection(console.serial)
 
@@ -221,5 +227,4 @@ async def internal(console):
                 #await writer.drain()
 
     finally:
-        pass
-        #termios.tcsetattr(fd, termios.TCSAFLUSH, old)
+        termios.tcsetattr(fd, termios.TCSAFLUSH, old)

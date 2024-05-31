@@ -48,7 +48,7 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
         self._status = 0
-        #self._output = b''
+        self._output = b''
 
         if self.boot_expression:
             import warnings
