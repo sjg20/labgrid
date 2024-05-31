@@ -22,7 +22,6 @@ class SerialDriver(ConsoleExpectMixin, Driver, ConsoleProtocol):
 
     txdelay = attr.ib(default=0.0, validator=attr.validators.instance_of(float))
     timeout = attr.ib(default=3.0, validator=attr.validators.instance_of(float))
-    spl_banner_times = attr.ib(default=-1, validator=attr.validators.instance_of(int))
 
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
@@ -95,15 +94,7 @@ class SerialDriver(ConsoleExpectMixin, Driver, ConsoleProtocol):
         Arguments:
         data -- data to write, must be bytes
         """
-        if self.txdelay:
-            #print(f'Write {len(data)} bytes: {data} (with {self.txdelay:f}s txdelay)')
-            count = 0
-            for i in range(len(data)):
-                time.sleep(self.txdelay)
-                count += self.serial.write(data[i:i+1])
-            return count
-        else:
-            return self.serial.write(data)
+        return self.serial.write(data)
 
     def open(self):
         """Opens the serialport, does nothing if it is already open"""
