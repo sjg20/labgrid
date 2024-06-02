@@ -18,9 +18,13 @@ export send=0
 export reset=1
 export strategy="-s start"
 export no_prompt_wait=
+export build_path=
 
 while getopts "${allowed_args}" opt; do
 	case $opt in
+	b )
+	  build_path="$OPTARG"
+	  ;;
 	c )
 	  clean=1
 	  ;;
@@ -58,8 +62,15 @@ shift
 
 vars="-V do-bootstrap ${bootstrap} -V do-build ${build} -V do-clean ${clean}"
 vars+=" -V do-send ${send}"
+[ -n "${build_path}" ] && vars+=" -V build-path ${build_path}"
 
 lg_vars="--lg-var do-bootstrap ${bootstrap} --lg-var do-build ${build}"
 lg_vars+=" --lg-var do-clean ${clean} --lg-var do-send ${send}"
+[ -n "${build_path}" ] && lg_vars+=" --lg-var build-path ${build_path}"
 
 export vars lg_vars target
+
+if [ -n "${V}" ]; then
+	echo "vars: ${vars}"
+	echo "lg_vars: ${lg_vars}"
+fi
