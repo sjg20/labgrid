@@ -181,6 +181,9 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
                     self.console.sendline("")
 
                 if timeout.expired:
+                    output = self.console.read_output()
+                    for line in output.splitlines():
+                        print(line.decode('utf-8', errors='replace'))
                     raise TIMEOUT(
                         f"Timeout of {self.login_timeout} seconds exceeded during waiting for login"
                     )
