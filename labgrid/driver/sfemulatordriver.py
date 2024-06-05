@@ -17,6 +17,7 @@ class SFEmulatorDriver(Driver):
     bindings = {
         'emul': {'SFEmulator', 'NetworkSFEmulator'},
     }
+    trace = attr.ib(default=False, validator=attr.validators.instance_of(bool))
 
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
@@ -44,6 +45,8 @@ class SFEmulatorDriver(Driver):
             '-d', mf.get_remote_path(),
             '-r',
         ]
+        if self.trace:
+            cmd += '-t'
         processwrapper.check_output(cmd)
 
     def __str__(self):
