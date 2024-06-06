@@ -361,7 +361,6 @@ class SamsungUSBDriver(Driver, BootstrapProtocol):
             self.tool = 'smdk-usbdl'
 
     def on_activate(self):
-        print('activate')
         pass
 
     def on_deactivate(self):

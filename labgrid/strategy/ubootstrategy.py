@@ -26,7 +26,11 @@ class Status(enum.Enum):
 @target_factory.reg_driver
 @attr.s(eq=False)
 class UBootStrategy(Strategy):
-    """UbootStrategy - Strategy to switch to uboot or shell"""
+    """UbootStrategy - Strategy to switch to uboot or shell
+
+    Args:
+        send_only: True if the board only supports sending over USB, no flash
+    """
     bindings = {
         "power": "PowerProtocol",
         "console": "ConsoleProtocol",
@@ -36,10 +40,14 @@ class UBootStrategy(Strategy):
     }
 
     status = attr.ib(default=Status.unknown)
+    send_only = attr.ib(default=False, validator=attr.validators.instance_of(bool))
 
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
         self.bootstrapped = False
+
+    def use_send(self):
+        return self.send_only or get_var('do-send', '0') == '1'
 
     def bootstrap(self):
         builder = self.target.get_driver("UBootProviderDriver")
@@ -50,13 +58,16 @@ class UBootStrategy(Strategy):
         print(f'Bootstrapping U-Boot from dir {image_dir}')
 
         writer = self.target.get_driver("UBootWriterDriver")
-        if get_var('do-send', '0') == '1':
+        if self.use_send():
             recovery = self.target.get_driver("RecoveryProtocol")
             recovery.set_enable(True)
             self.power.on()
             self.target.activate(self.reset)
             self.reset.reset()
             self.target.activate(self.console)
+
+            # Give the board time to notice
+            time.sleep(1)
             recovery.set_enable(False)
             writer.send(image_dir)
         else:
@@ -74,7 +85,7 @@ class UBootStrategy(Strategy):
         else:
             writer = self.target.get_driver("UBootWriterDriver")
             writer.prepare_boot()
-        if get_var('do-send', '0') != '1':
+        if not self.use_send():
             self.target.activate(self.console)
             self.target.activate(self.reset)
 

@@ -203,7 +203,6 @@ class USBStorageDriver(Driver):
         else:
             raise ValueError
 
-        print('dd', ' '.join(args))
         processwrapper.check_output(
             self.storage.command_prefix + args,
         )
