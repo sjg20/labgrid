@@ -29,7 +29,7 @@ export send=0
 export reset=1
 
 # selects the target strategy-state to use, in Labgrid's UBootStrategy
-export strategy="-s start"
+export strategy="-s start -e off"
 
 # --no-prompt-wait to tell pytest not to wait for a U-Boot prompt
 export no_prompt_wait=

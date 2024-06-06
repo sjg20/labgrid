@@ -588,6 +588,8 @@ class ClientSession(ApplicationSession):
         """Release a previously acquired place"""
         place = self.get_place()
         if not place.acquired:
+            if self.args.auto:
+                return
             raise UserError(f"place {place.name} is not acquired")
         _, user = place.acquired.split('/')
         if user != self.getuser():
@@ -662,6 +664,27 @@ class ClientSession(ApplicationSession):
         manager.session = self
         manager.loop = self.loop
 
+    def set_initial_state(self, target):
+        if self.args.state:
+            strategy = target.get_driver("Strategy")
+            if self.args.initial_state:
+                print(f"Setting initial state to {self.args.initial_state}")
+                strategy.force(self.args.initial_state)
+            logging.info(f"Transitioning into state {self.args.state}")
+            strategy.transition(self.args.state)
+            # deactivate console drivers so we are able to connect with microcom later
+            try:
+                con = target.get_active_driver("ConsoleProtocol")
+                target.deactivate(con)
+            except NoDriverFoundError:
+                pass
+
+    def set_end_state(self, target):
+        if self.args.end_state:
+            strategy = target.get_driver("Strategy")
+            logging.info(f"Transitioning into state {self.args.end_state}")
+            strategy.transition(self.args.end_state)
+
     def _get_target(self, place):
         self._prepare_manager()
         target = None
@@ -672,19 +695,7 @@ class ClientSession(ApplicationSession):
                     print(f"Selected role {self.role} from configuration file")
             target = self.env.get_target(self.role)
         if target:
-            if self.args.state:
-                strategy = target.get_driver("Strategy")
-                if self.args.initial_state:
-                    print(f"Setting initial state to {self.args.initial_state}")
-                    strategy.force(self.args.initial_state)
-                logging.info(f"Transitioning into state {self.args.state}")
-                strategy.transition(self.args.state)
-                # deactivate console drivers so we are able to connect with microcom later
-                try:
-                    con = target.get_active_driver("ConsoleProtocol")
-                    target.deactivate(con)
-                except NoDriverFoundError:
-                    pass
+            self.set_initial_state(target)
         else:
             target = Target(place.name, env=self.env)
             RemotePlace(target, name=place.name)
@@ -1464,6 +1475,7 @@ def main():
     place = os.environ.get('LG_PLACE', place)
     state = os.environ.get('STATE', None)
     state = os.environ.get('LG_STATE', state)
+    end_state = os.environ.get('LG_END_STATE', state)
     initial_state = os.environ.get('LG_INITIAL_STATE', None)
     token = os.environ.get('LG_TOKEN', None)
 
@@ -1508,6 +1520,13 @@ def main():
         type=str,
         default=state,
         help="strategy state to switch into before command"
+    )
+    parser.add_argument(
+        '-e',
+        '--end-state',
+        type=str,
+        default=state,
+        help="strategy state to switch into after command"
     )
     parser.add_argument(
         '-i',
@@ -1638,6 +1657,8 @@ def main():
     subparser = subparsers.add_parser('release',
                                       aliases=('unlock',),
                                       help="release a place")
+    subparser.add_argument('-a', '--auto', action='store_true',
+                           help="don't raise an error if the place is not acquired")
     subparser.add_argument('-k', '--kick', action='store_true',
                            help="release a place even if it is acquired by a different user")
     subparser.set_defaults(func=ClientSession.release)
@@ -1986,6 +2007,7 @@ def main():
                     else:
                         coro = args.func(session)
                     session.loop.run_until_complete(coro)
+                    session.set_end_state(target)
                     if auto_release:
                         coro = session.release()
                         session.loop.run_until_complete(coro)
