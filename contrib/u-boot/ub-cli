@@ -4,13 +4,17 @@
 # console
 
 usage() {
-	echo "Failed: $1"
-	echo
+	if [ -n "$1" ]; then
+		echo "Failed : $1"
+	else
+		echo "Connect to a running U-Boot ready, to enter commands"
+	fi
 	echo "Usage: ub-cli [-csv] <target>"
+	echo " -B  Don't build U-Boot"
 	echo " -c  Run 'make mrproper' before building"
-	echo " -n  Don't build U-Boot"
+	echo " -h  Help"
 	echo " -s  Send over USB (instead of writing to boot media)"
-	echo " -t  Don't bootstrap U-Boot"
+	echo " -T  Don't bootstrap U-Boot"
 	echo " -v  Verbose mode"
 	exit 1
 }
@@ -19,7 +23,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="cnstv"
+allowed_args="BchsTv"
 . ${mydir}/get_args.sh
 
 ret=0

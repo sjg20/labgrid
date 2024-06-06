@@ -6,10 +6,15 @@
 # 'git bisect good ...' and 'git bisect bad ...'
 
 usage() {
-	echo "Failed: $1"
+	if [ -n "$1" ]; then
+		echo "Failed : $1"
+	else
+		echo "Run a bisect to locate the first bad commit"
+	fi
 	echo
 	echo "Usage: ub-bisect [-cs] <target> [<commit>]"
 	echo " -c  Run 'make mrproper' before building"
+	echo " -h  Help"
 	echo " -s  Send over USB (instead of writing to boot media)"
 	exit 1
 }
@@ -19,7 +24,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="cs"
+allowed_args="chs"
 . ${mydir}/get_args.sh
 
 commit="$1"

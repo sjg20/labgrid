@@ -3,14 +3,18 @@
 # Boot U-Boot on a particular target and run selected tests
 
 usage() {
-	echo "Failed: $1"
-	echo
+	if [ -n "$1" ]; then
+		echo "Failed : $1"
+	else
+		echo "Run a U-Boot pytest on a board"
+	fi
 	echo "Usage: ub-pyt [-cnst] <target> <test_spec>"
+	echo " -B  Don't build U-Boot"
 	echo " -c  Run 'make mrproper' before building"
-	echo " -n  Don't build U-Boot"
-	echo " -r  Don't reset the board, just connect as is"
+	echo " -h  Help"
+	echo " -R  Don't reset the board, just connect as is"
 	echo " -s  Send over USB (instead of writing to boot media)"
-	echo " -t  Don't bootstrap U-Boot"
+	echo " -T  Don't bootstrap U-Boot"
 	echo
 	echo "<test_spec> is the tests to run, e.g. not tpm"
 	exit 1
@@ -20,7 +24,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="cnrst"
+allowed_args="BchRsT"
 . ${mydir}/get_args.sh
 
 tmpfile=$(mktemp)

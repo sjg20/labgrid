@@ -46,7 +46,7 @@ class UBootProviderDriver(Driver):
         Args:
             board (str): Name of U-Boot board to set up, or None for default
         '''
-        pathname = get_var('build-path')
+        pathname = get_var('build-dir')
         if not pathname:
             pathname = os.getenv('U_BOOT_BUILD_DIR')
         if not pathname:

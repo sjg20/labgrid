@@ -4,15 +4,19 @@
 # for the command prompt to appear - output is shown as soon as it appears.
 
 usage() {
-	echo "Failed: $1"
-	echo
+	if [ -n "$1" ]; then
+		echo "Failed : $1"
+	else
+		echo "Connect to the board console interactively"
+	fi
 	echo "Usage: ub-int [-csv] <target>"
-	echo " -b  Set build directory"
+	echo " -B  Don't build U-Boot"
 	echo " -c  Run 'make mrproper' before building"
-	echo " -n  Don't build U-Boot"
-	echo " -r  Don't reset the board, just connect as is"
+	echo " -d  Set build directory"
+	echo " -h  Help"
+	echo " -R  Don't reset the board, just connect as is"
 	echo " -s  Send over USB (instead of writing to boot media)"
-	echo " -t  Don't bootstrap U-Boot"
+	echo " -T  Don't bootstrap U-Boot"
 	echo " -v  Verbose mode"
 	exit 1
 }
@@ -21,7 +25,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="b:cnrstv"
+allowed_args="d:cBhRsTv"
 . ${mydir}/get_args.sh
 
 ret=0

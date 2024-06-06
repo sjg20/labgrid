@@ -3,13 +3,16 @@
 # Boot U-Boot on a particular target and check that it starts up OK
 
 usage() {
-	echo "Failed: $1"
-	echo
+	if [ -n "$1" ]; then
+		echo "Failed : $1"
+	else
+		echo "Run a smoke test to see if U-Boot starts OK"
+	fi
 	echo "Usage: ut-smoke [-cs] <target>"
+	echo " -B  Don't build U-Boot"
 	echo " -c  Run 'make mrproper' before building"
-	echo " -n  Don't build U-Boot"
 	echo " -s  Send over USB (instead of writing to boot media)"
-	echo " -t  Don't bootstrap U-Boot"
+	echo " -T  Don't bootstrap U-Boot"
 	exit 1
 }
 
