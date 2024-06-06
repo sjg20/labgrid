@@ -76,17 +76,19 @@ class ServoDriver(ConsoleExpectMixin, Driver):
         self.dut_control(f'{mode}_reset:{state}')
 
     @Driver.check_active
-    @step(title='set_recovery', args=['status'])
-    def set_recovery(self, status):
+    @step(title='set_recovery', args=['enable'])
+    def set_recovery(self, enable):
         """Set the recovery-button state
 
         Args:
-            status (bool): True to enable recovery, False to disable
+            enable (bool): True to enable recovery, False to disable
         """
-        self.dut_control('cold_reset:on', 'sleep:.5',
-                         'cold_reset:off', 'sleep:.5')
-        self.dut_control('warm_reset:on', 't20_rec:on', 'sleep:.2',
-                         'warm_reset:off', 'sleep:.5', 't20_rec:off')
+        #self.dut_control('cold_reset:on', 'sleep:.5',
+                         #'cold_reset:off', 'sleep:.5')
+        #self.dut_control('warm_reset:on', 't20_rec:on', 'sleep:.2',
+                         #'warm_reset:off', 'sleep:.5', 't20_rec:off')
+        state = 'on' if enable else 'off'
+        self.dut_control(f't20_rec:{state}')
 
     @Driver.check_active
     @step(title='get_tty')
@@ -118,10 +120,11 @@ class ServoResetDriver(Driver, ResetProtocol):
         super().__attrs_post_init__()
 
     @Driver.check_active
+    @step(title='reset', args=['mode'])
     @step()
-    def reset(self):
+    def reset(self, mode='cold'):
         servo = self.target.get_driver('ServoDriver')
-        servo.do_reset(self.delay)
+        servo.do_reset(self.delay, mode)
 
     @Driver.check_active
     @step(title='set_reset_enable', args=['enable', 'mode'])

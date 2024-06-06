@@ -59,16 +59,23 @@ class UBootStrategy(Strategy):
 
         writer = self.target.get_driver("UBootWriterDriver")
         if self.use_send():
+            self.target.activate(self.power)
+            self.power.on()
+
             recovery = self.target.get_driver("RecoveryProtocol")
             recovery.set_enable(True)
-            self.power.on()
+
             self.target.activate(self.reset)
-            self.reset.reset()
+            self.reset.set_reset_enable(True, mode='warm')
             self.target.activate(self.console)
 
+            self.reset.set_reset_enable(False, mode='warm')
+
             # Give the board time to notice
-            time.sleep(1)
+            time.sleep(.2)
             recovery.set_enable(False)
+            self.reset.set_reset_enable(False, mode='warm')
+
             writer.send(image_dir)
         else:
             writer.write(image_dir)
