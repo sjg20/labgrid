@@ -60,13 +60,14 @@ class UBootStrategy(Strategy):
         writer = self.target.get_driver("UBootWriterDriver")
         if self.use_send():
             self.target.activate(self.power)
-            self.power.on()
 
             recovery = self.target.get_driver("RecoveryProtocol")
             recovery.set_enable(True)
 
             self.target.activate(self.reset)
             self.reset.set_reset_enable(True, mode='warm')
+            if self.power != self.reset:
+                self.power.on()
             self.target.activate(self.console)
 
             self.reset.set_reset_enable(False, mode='warm')
