@@ -31,8 +31,8 @@ class PowerResetMixin(ResetProtocol):
         self.cycle()
 
     @Driver.check_active
-    @step(title='set_reset_enable', args=['enable'])
-    def set_reset_enable(self, enable):
+    @step(title='set_reset_enable', args=['enable', 'mode'])
+    def set_reset_enable(self, enable, mode='cold'):
         if enable:
             self.off()
         else:

@@ -24,6 +24,11 @@ class UBootProviderDriver(Driver):
     Paths (environment configuration):
         uboot_build_base: Base output directory for build, e.g. "/tmp/b".
             The build will taken place in build_base/board, e.g. "/tmp/b/gurnard"
+
+    Environment:
+        U_BOOT_BUILD_DIR
+        U_BOOT_SOURCE_DIR
+
     """
     board = attr.ib(validator=attr.validators.instance_of(str))
     bl31 = attr.ib(default='', validator=attr.validators.instance_of(str))
@@ -55,12 +60,20 @@ class UBootProviderDriver(Driver):
             pathname = os.path.join(self.build_base, board)
         return pathname
 
+    def get_source_path(self):
+        # If we have a commit, use a worktree. Otherwise we just use the source
+        # in the current directory
+        pathname = os.getenv('U_BOOT_SOURCE_DIR')
+        if pathname:
+            return pathname, 'in pytest-source dir'
+        return self.sourcedir, 'in sourcedir'
+
     def get_board(self):
         return get_var('use-board', self.board)
 
     @Driver.check_active
     @step(title='build')
-    def build(self):
+    def build(self, do_print=True, config_only=False):
         """Builds U-Boot
 
         Performs an incremental build of U-Boot for the selected board,
@@ -86,18 +99,12 @@ class UBootProviderDriver(Driver):
             '-w',
             '--board', board,
             '-W',
-            '-ve', '-m',
+            '-ve',
         ]
+        if config_only:
+            cmd.append('--config-only')
 
-        # If we have a commit, use a worktree. Otherwise we just use the source
-        # in the current directory
-        detail = 'in sourcedir'
-        cwd = self.sourcedir
-
-        pathname = os.getenv('U_BOOT_SOURCE_DIR')
-        if pathname:
-            detail = 'in pytest-source dir'
-            cwd = pathname
+        cwd, detail = self.get_source_path()
 
         workdir = None
         if commit:
@@ -111,12 +118,19 @@ class UBootProviderDriver(Driver):
         if get_var('do-clean', '0') == '1':
             cmd.append('-m')
 
-        print(f'Building U-Boot {detail} for {board}')
+        if do_print:
+            print(f'Building U-Boot {detail} for {board}')
         self.logger.debug(f'cwd:{os.getcwd()} cmd:{cmd}')
         try:
-            out = processwrapper.check_output(cmd, cwd=cwd, env=env)
+            out = processwrapper.check_output(cmd + ['--fallback-mrproper'],
+                                              cwd=cwd, env=env)
         except subprocess.CalledProcessError as exc:
-            raise
+            if b'no such option: --fallback-mrproper' in exc.stdout:
+                try:
+                    out = processwrapper.check_output(cmd + ['-m'], cwd=cwd,
+                                                      env=env)
+                except subprocess.CalledProcessError as exc:
+                    raise
         out = out.decode('utf-8', errors='ignore')
         fail = None
         for line in out.splitlines():
@@ -211,6 +225,11 @@ class UBootProviderDriver(Driver):
         board = self.get_board()
         if name == 'board':
             return board
-        elif name == 'build_path':
+        elif name == 'build_dir':
             return self.get_build_path(board)
+        elif name == 'source_dir':
+            return self.get_source_path()[0]
+        elif name == 'config_file':
+            build_path = self.build(do_print=False, config_only=True)
+            return os.path.join(build_path, '.config')
         return None

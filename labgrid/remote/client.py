@@ -1336,7 +1336,9 @@ class ClientSession(ApplicationSession):
             cls_name, names = item.split(':')
             drv = target.get_driver(cls_name)
             for name in names.split(','):
-                print(drv.query_info(name))
+                #print(drv.query_info(name))
+                val = drv.query_info(name)
+                print(f'{cls_name}:{name} {val}')
     query.needs_target = True
 
     def print_version(self, target):
