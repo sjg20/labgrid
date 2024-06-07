@@ -33,6 +33,7 @@ class UBootProviderDriver(Driver):
     board = attr.ib(validator=attr.validators.instance_of(str))
     bl31 = attr.ib(default='', validator=attr.validators.instance_of(str))
     binman_indir = attr.ib(default='', validator=attr.validators.instance_of(str))
+    spl_banner_times = attr.ib(default=-1, validator=attr.validators.instance_of(int))
 
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
