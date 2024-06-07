@@ -29,28 +29,32 @@ allowed_args="BchRsT"
 
 tmpfile=$(mktemp)
 
-# Find out the board name and path
-if lg-client -r "${target}" -a query UBootProviderDriver:board,build_path \
-	SerialDriver:txdelay,spl_banner_times > "${tmpfile}"; then
-	readarray -t a < ${tmpfile}
-	rm ${tmpfile}
-	board="${a[0]}"
-	build_path="${a[1]}"
-	delay="${a[2]}"
-	spl_banner_times="${a[3]}"
-else
-	echo "Failed to obtain build information"
-	exit 1
-fi
-
 env=
-
-[ "${delay}" != "0.0" ] && slow_serial="--slow-serial"
-[ "${spl_banner_times}" != "None" ] && env+=" --env spl_banner_times=${spl_banner_times}"
 
 [ -n "${strategy}" ] && strategy="-s uboot"
 
-# Run the tests, using this information
-PYTHONPATH="${UB_TEST_HOOKS}/py/$hostname" ./test/py/test.py \
-	--bd "${board}" --configure ${no_prompt_wait} ${slow_serial} ${env} \
-	--build-dir "${build_path}" --id "${target}" -k "$*"
+# no_prompt_wait comes from the get_args.sh script. It is either empty, or
+# contains --no-prompt-wait
+
+# Try the --role option if it exists
+if grep -q -- "--role" test/py/conftest.py; then
+	PYTHONPATH="${UB_TEST_HOOKS}/py/$hostname" ./test/py/test.py -s \
+		--configure ${no_prompt_wait} --role "${target}" -k "$*"
+else
+	# Find out the board name and path
+	if lg-client -r "${target}" -a query UBootProviderDriver:board,build_path \
+			> "${tmpfile}"; then
+		readarray -t a < ${tmpfile}
+		rm ${tmpfile}
+		board="${a[0]}"
+		build_path="${a[1]}"
+	else
+		echo "Failed to obtain build information"
+		exit 1
+	fi
+
+	# Run the tests, using this information
+	PYTHONPATH="${UB_TEST_HOOKS}/py/$hostname" ./test/py/test.py \
+		--bd "${board}" --configure ${no_prompt_wait} ${slow_serial} \
+		${env} --build-dir "${build_path}" --id "${target}" -k "$*"
+fi

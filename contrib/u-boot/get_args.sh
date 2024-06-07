@@ -77,7 +77,7 @@ done
 
 shift $((OPTIND -1))
 
-target=$1
+target="$1"
 shift
 
 [[ -z "${target}" ]] && usage "Missing target"

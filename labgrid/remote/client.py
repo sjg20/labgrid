@@ -1994,6 +1994,7 @@ def main():
             try:
                 if asyncio.iscoroutinefunction(args.func):
                     auto_release = False
+                    target = None
                     if getattr(args.func, 'needs_target', False):
                         if args.acquire:
                             place = session.get_place(args.place)
