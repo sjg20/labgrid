@@ -29,9 +29,7 @@ allowed_args="BchRsT"
 
 tmpfile=$(mktemp)
 
-env=
-
-[ -n "${strategy}" ] && strategy="-s uboot"
+[ -n "${strategy}" ] && strategy="-s uboot -e off"
 
 # no_prompt_wait comes from the get_args.sh script. It is either empty, or
 # contains --no-prompt-wait
@@ -56,6 +54,6 @@ else
 
 	# Run the tests, using this information
 	PYTHONPATH="${UB_TEST_HOOKS}/py/$hostname" ./test/py/test.py \
-		--bd "${board}" --configure ${no_prompt_wait} ${slow_serial} \
-		${env} --build-dir "${build_path}" --id "${target}" -k "$*"
+		--bd "${board}" --configure ${no_prompt_wait} \
+		--build-dir "${build_path}" --id "${target}" -k "$*"
 fi
