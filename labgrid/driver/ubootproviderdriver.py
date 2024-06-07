@@ -21,6 +21,9 @@ class UBootProviderDriver(Driver):
         source_dir (str): Directory containing U-Boot source (default is current
             directory)
 
+    Variables:
+        process-limit
+
     Paths (environment configuration):
         uboot_build_base: Base output directory for build, e.g. "/tmp/b".
             The build will taken place in build_base/board, e.g. "/tmp/b/gurnard"
@@ -87,6 +90,7 @@ class UBootProviderDriver(Driver):
         build_path = self.get_build_path(board)
         commit = get_var('commit')
         patch = get_var('patch')
+        process_limit = get_var('process-limit')
 
         env = os.environ
         if self.bl31:
@@ -104,6 +108,8 @@ class UBootProviderDriver(Driver):
         ]
         if config_only:
             cmd.append('--config-only')
+        if process_limit:
+            cmd += ['--process-limit', process_limit]
 
         cwd, detail = self.get_source_path()
 
@@ -121,6 +127,7 @@ class UBootProviderDriver(Driver):
 
         if do_print:
             print(f'Building U-Boot {detail} for {board}')
+        print('process_limit', process_limit)
         self.logger.debug(f'cwd:{os.getcwd()} cmd:{cmd}')
         try:
             out = processwrapper.check_output(cmd + ['--fallback-mrproper'],

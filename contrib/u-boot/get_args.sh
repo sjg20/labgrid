@@ -37,6 +37,9 @@ export no_prompt_wait=
 # build path to use (empty to use default)
 export build_dir=
 
+# limit the number of active buildman processors
+export process_limit=2
+
 while getopts "${allowed_args}" opt; do
 	case $opt in
 	d )
