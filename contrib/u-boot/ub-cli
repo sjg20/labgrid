@@ -29,6 +29,6 @@ allowed_args="BchsTv"
 ret=0
 labgrid-client ${V} ${vars} -r ${target} -s uboot -a console || ret=$?
 
-labgrid-client ${V} -r "${target}" release
+labgrid-client ${V} -r "${target}" release -a
 
 [[ $ret -ne 0 ]] && exit $ret

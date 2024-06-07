@@ -31,6 +31,6 @@ allowed_args="d:cBhRsTv"
 ret=0
 labgrid-client ${V} ${vars} -r ${target} ${strategy} -a console || ret=$?
 
-labgrid-client ${V} -r "${target}" release
+labgrid-client ${V} -r "${target}" release -a
 
 [[ $ret -ne 0 ]] && exit $ret

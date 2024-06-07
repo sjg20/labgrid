@@ -35,7 +35,7 @@ pytest --lg-env "${LG_ENV}" --lg-coordinator="${LG_CROSSBAR}" \
 	${lg_vars} \
 	 -k test_uboot_smoke || ret=$?
 
-if ! labgrid-client -p ${target} release; then
+if ! labgrid-client -p ${target} release -a; then
 	exit $?
 fi
 exit $ret
