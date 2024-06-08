@@ -120,7 +120,4 @@ class SerialDriver(ConsoleExpectMixin, Driver, ConsoleProtocol):
     def query_info(self, name):
         if name == 'txdelay':
             return self.txdelay
-        elif name == 'spl_banner_times':
-            if self.spl_banner_times >= 0:
-                return self.spl_banner_times
         return None

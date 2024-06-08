@@ -672,12 +672,6 @@ class ClientSession(ApplicationSession):
                 strategy.force(self.args.initial_state)
             logging.info(f"Transitioning into state {self.args.state}")
             strategy.transition(self.args.state)
-            # deactivate console drivers so we are able to connect with microcom later
-            try:
-                con = target.get_active_driver("ConsoleProtocol")
-                target.deactivate(con)
-            except NoDriverFoundError:
-                pass
 
     def set_end_state(self, target):
         if self.args.end_state:
@@ -838,6 +832,13 @@ class ClientSession(ApplicationSession):
             # use zero timeout to prevent blocking sleeps
             target.await_resources([resource], timeout=0.0)
             host, port = proxymanager.get_host_and_port(resource)
+
+            # deactivate console drivers so we are able to connect with microcom
+            try:
+                con = target.get_active_driver("ConsoleProtocol")
+                target.deactivate(con)
+            except NoDriverFoundError:
+                pass
 
             # check for valid resources
             assert port is not None, "Port is not set"

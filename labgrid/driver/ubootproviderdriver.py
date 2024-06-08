@@ -232,4 +232,7 @@ class UBootProviderDriver(Driver):
         elif name == 'config_file':
             build_path = self.build(do_print=False, config_only=True)
             return os.path.join(build_path, '.config')
+        elif name == 'spl_banner_times':
+            if self.spl_banner_times >= 0:
+                return self.spl_banner_times
         return None
