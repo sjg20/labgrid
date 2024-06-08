@@ -127,7 +127,6 @@ class UBootProviderDriver(Driver):
 
         if do_print:
             print(f'Building U-Boot {detail} for {board}')
-        print('process_limit', process_limit)
         self.logger.debug(f'cwd:{os.getcwd()} cmd:{cmd}')
         try:
             out = processwrapper.check_output(cmd + ['--fallback-mrproper'],
@@ -139,6 +138,8 @@ class UBootProviderDriver(Driver):
                                                       env=env)
                 except subprocess.CalledProcessError as exc:
                     raise
+            else:
+                raise
         out = out.decode('utf-8', errors='ignore')
         fail = None
         for line in out.splitlines():
