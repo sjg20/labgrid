@@ -13,6 +13,7 @@ usage() {
 	echo " -B  Don't build U-Boot"
 	echo " -c  Run 'make mrproper' before building"
 	echo " -d  Set build directory"
+	echo " -D  Enable debugging"
 	echo " -h  Help"
 	echo " -R  Don't reset the board, just connect as is"
 	echo " -s  Send over USB (instead of writing to boot media)"
@@ -25,11 +26,11 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="d:cBhRsTv"
+allowed_args="d:cBDhRsTv"
 . ${mydir}/get_args.sh
 
 ret=0
-labgrid-client ${V} ${vars} -r ${target} ${strategy} -a console || ret=$?
+labgrid-client ${V} ${debug} ${vars} -r ${target} ${strategy} -a console || ret=$?
 
 labgrid-client ${V} -r "${target}" release -a
 

@@ -12,6 +12,8 @@ usage() {
 	echo "Usage: ub-cli [-csv] <target>"
 	echo " -B  Don't build U-Boot"
 	echo " -c  Run 'make mrproper' before building"
+	echo " -d  Set build directory"
+	echo " -D  Enable debugging"
 	echo " -h  Help"
 	echo " -s  Send over USB (instead of writing to boot media)"
 	echo " -T  Don't bootstrap U-Boot"
@@ -23,11 +25,11 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="BchsTv"
+allowed_args="BcDhsTv"
 . ${mydir}/get_args.sh
 
 ret=0
-labgrid-client ${V} ${vars} -r ${target} -s uboot -a console || ret=$?
+labgrid-client ${V} ${debug} ${vars} -r ${target} -s uboot -a console || ret=$?
 
 labgrid-client ${V} -r "${target}" release -a
 

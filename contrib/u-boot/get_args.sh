@@ -40,10 +40,16 @@ export build_dir=
 # limit the number of active buildman processors
 export process_limit=2
 
+# debug flag for labgrid
+export debug=
+
 while getopts "${allowed_args}" opt; do
 	case $opt in
 	d )
 	  build_dir="$OPTARG"
+	  ;;
+	D )
+	  debug=-d
 	  ;;
 	c )
 	  clean=1

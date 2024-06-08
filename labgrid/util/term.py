@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 from pexpect import TIMEOUT
+from serial.serialutil import SerialException
 import termios
 import time
 
@@ -64,6 +65,9 @@ async def run(serial):
 
         except TIMEOUT:
             pass
+
+        except SerialException:
+            break
 
         data = os.read(sys.stdin.fileno(), BUF_SIZE)
         if data:
