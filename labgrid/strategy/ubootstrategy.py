@@ -73,20 +73,20 @@ class UBootStrategy(Strategy):
 
             recovery = self.target.get_driver("RecoveryProtocol")
             recovery.set_enable(True)
-            time.sleep(.2)
-
-            self.target.activate(self.console)
+            #time.sleep(.2)
 
             # Do the Servo reset now
             if isinstance(self.reset, ServoResetDriver):
                 self.reset.set_reset_enable(True, mode='warm')
                 time.sleep(1)
 
+            self.target.activate(self.console)
+
             # Release reset
             self.reset.set_reset_enable(False, mode='warm')
 
             # Give the board time to notice
-            time.sleep(.5)
+            time.sleep(.2)
             recovery.set_enable(False)
 
             writer.send(image_dir)
