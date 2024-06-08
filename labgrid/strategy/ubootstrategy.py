@@ -80,7 +80,7 @@ class UBootStrategy(Strategy):
             # Do the Servo reset now
             if isinstance(self.reset, ServoResetDriver):
                 self.reset.set_reset_enable(True, mode='warm')
-                time.sleep(.5)
+                time.sleep(1)
 
             # Release reset
             self.reset.set_reset_enable(False, mode='warm')
