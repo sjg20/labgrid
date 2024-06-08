@@ -8,6 +8,7 @@ import time
 from ..factory import target_factory
 from .common import Strategy, StrategyError
 from labgrid.var_dict import get_var
+from ..driver.servodriver import ServoResetDriver
 
 
 class Status(enum.Enum):
@@ -60,22 +61,32 @@ class UBootStrategy(Strategy):
         writer = self.target.get_driver("UBootWriterDriver")
         if self.use_send():
             self.target.activate(self.power)
-
             self.target.activate(self.reset)
-            self.reset.set_reset_enable(True, mode='warm')
+
+            # Hold the board in reset, except for Servo since this prevents the
+            # USB-download mode from working (at least with snow)
+            if not isinstance(self.reset, ServoResetDriver):
+                self.reset.set_reset_enable(True, mode='warm')
 
             if self.power != self.reset:
-                self.power.cycle()
+                self.power.on()
 
             recovery = self.target.get_driver("RecoveryProtocol")
             recovery.set_enable(True)
+            time.sleep(.2)
 
             self.target.activate(self.console)
 
+            # Do the Servo reset now
+            if isinstance(self.reset, ServoResetDriver):
+                self.reset.set_reset_enable(True, mode='warm')
+                time.sleep(.5)
+
+            # Release reset
             self.reset.set_reset_enable(False, mode='warm')
 
             # Give the board time to notice
-            time.sleep(1)
+            time.sleep(.5)
             recovery.set_enable(False)
 
             writer.send(image_dir)
