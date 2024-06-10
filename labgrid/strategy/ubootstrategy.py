@@ -1,4 +1,5 @@
 import enum
+import os
 import sys
 import time
 
@@ -105,7 +106,11 @@ class UBootStrategy(Strategy):
         self.bootstrapped = True
 
     def start(self):
-        "Start U-Boot, by powering on / resetting the board"""
+        # Tell the U-Boot test system to await events
+        if os.getenv('U_BOOT_SOURCE_DIR'):
+            print('{lab mode}')
+
+        # Start U-Boot, by powering on / resetting the board
         if not self.bootstrapped and get_var('do-bootstrap', '0') == '1':
             self.transition(Status.bootstrap)
         else:
