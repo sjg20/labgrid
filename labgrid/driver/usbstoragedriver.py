@@ -257,7 +257,8 @@ class USBStorageDriver(Driver):
         """
         args = ["cat", f"/sys/class/block/{self._get_devpath(partition)[5:]}/size"]
         try:
-            size = subprocess.check_output(self.storage.command_prefix + args)
+            size = subprocess.check_output(self.storage.command_prefix + args,
+                                           stderr=subprocess.DEVNULL)
         except subprocess.CalledProcessError:
             # while the medium is getting ready, the file does not yet exist
             return 0
