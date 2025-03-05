@@ -9,7 +9,8 @@ usage() {
 	else
 		echo "Connect to a running U-Boot ready, to enter commands"
 	fi
-	echo "Usage: ub-cli [-BcDhLsTv] [-d <dir>] [-x <dir>] [-e <file> ] [-l <file>] <target>"
+	echo "Usage: ub-cli [-BcDhLsTv] [-a <opt> ] [-d <dir>] [-x <dir>] [-e <file> ] [-l <file>] <target>"
+	echo " -a  <opt> Adjust build, e.g. -a NET_LWIP -a ~CMD_MEM"
 	echo " -B  Don't build U-Boot"
 	echo " -c  Run 'make mrproper' before building"
 	echo " -d  <dir> Set build directory"
@@ -28,7 +29,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="Bcd:De:hl:sTvx:"
+allowed_args="a:Bcd:De:hl:sTvx:"
 . ${mydir}/get_args.sh
 
 ret=0

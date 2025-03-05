@@ -43,10 +43,16 @@ class UBootProviderDriver(Driver):
         do-clean (str): If set to "1" this cleans the build before starting,
             otherwise it does an incremental build
         build-dir (str): If set, this is used as the build directory for U-Boot
+        build-dir-extr (str): If set, this is used as the 'extra' build
+            directory for U-Boot
         process-limit (int): Limits the number of buildman processes which can
             be running jobs at once. Set this to 1 to avoid over-taxing your
             CPU. Buildman does its own multithreading, so each process will use
             all available CPUs anyway.
+        build-adjust (str): Kconfig adjustments to make to the build, separated
+            by colon. These are passed to buildman using the -a argument. For
+            example: 'NET_LWIP:~CMD_MEM'. Empty adjustments are ignored, so
+            ':NET_LWIP::~CMD_MEM' means the same
 
     Paths (environment configuration):
         uboot_build_base: Base output directory for build, e.g. "/tmp/b".
@@ -236,6 +242,12 @@ class UBootProviderDriver(Driver):
             cmd.append('--config-only')
         if process_limit:
             cmd += ['--process-limit', process_limit]
+
+        adjust = get_var('build-adjust')
+        if adjust:
+            for item in adjust.split(':'):
+                if item:
+                    cmd += ['-a', item]
 
         cwd, detail = self._get_source_path()
         # print(f'os.cwd: {os.getcwd()} cwd {cwd}')

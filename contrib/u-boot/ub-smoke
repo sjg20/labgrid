@@ -8,7 +8,8 @@ usage() {
 	else
 		echo "Run a smoke test to see if U-Boot starts OK"
 	fi
-	echo "Usage: ut-smoke [-BcDhRsTv] [-d <dir>] [-x <dir> ] [-e <file> ] [-l <file>] <target>"
+	echo "Usage: ut-smoke [-BcDhRsTv] [-a <opt> ] [-d <dir>] [-x <dir> ] [-e <file> ] [-l <file>] <target>"
+	echo " -a  <opt> Adjust build, e.g. -a NET_LWIP -a ~CMD_MEM"
 	echo " -B  Don't build U-Boot"
 	echo " -c  Run 'make mrproper' before building"
 	echo " -d  <dir> Set build directory"
@@ -28,7 +29,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="Bcd:De:hl:RsTvx:"
+allowed_args="a:Bcd:De:hl:RsTvx:"
 . ${mydir}/get_args.sh
 
 cd ${mydir}
@@ -40,7 +41,7 @@ fi
 ret=0
 pytest --lg-env "${LG_ENV}" --lg-coordinator="${LG_COORDINATOR}" \
 	--lg-log --lg-colored-steps --lg-target ${target} \
-	${lg_vars} \
+	${lg_vars} -q \
 	 -k test_uboot_smoke || ret=$?
 
 if ! labgrid-client -p ${target} release -a; then

@@ -12,7 +12,8 @@ usage() {
 		echo "Run a bisect to locate the first bad commit"
 	fi
 	echo
-	echo "Usage: ub-bisect [-cDs] [-d <dir>] [-x <dir>] <target> [<commit>]"
+	echo "Usage: ub-bisect [-cDs] [-a <opt> ] [-d <dir>] [-x <dir>] <target> [<commit>]"
+	echo " -a  <opt> Adjust build, e.g. -a NET_LWIP -a ~CMD_MEM"
 	echo " -c  Run 'make mrproper' before building"
 	echo " -d  <dir> Set build directory"
 	echo " -D  Enable debugging"
@@ -27,7 +28,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="cd:Dhsvx:"
+allowed_args="a:cd:Dhsvx:"
 . ${mydir}/get_args.sh
 
 commit="$1"

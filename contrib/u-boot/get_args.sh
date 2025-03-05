@@ -10,6 +10,8 @@
 # The allowed_args variable must be set to the list of valid args for this
 # script, e.g. "cnstv"
 
+export build_adjust=
+
 # 1 to bootstrap the board, i.e. write U-Boot to it and start it up
 export bootstrap=1
 
@@ -57,6 +59,9 @@ export em100_trace=
 
 while getopts "${allowed_args}" opt; do
 	case $opt in
+	a )
+	  build_adjust+=":$OPTARG"
+	  ;;
 	d )
 	  build_dir="$OPTARG"
 	  ;;
@@ -70,7 +75,7 @@ while getopts "${allowed_args}" opt; do
 	  build=0
 	  ;;
 	e )
-	  em100_trace="-V em100-trace $OPTARG"
+	  em100_trace="$OPTARG"
 	  ;;
 	h )
 	  usage
@@ -115,20 +120,31 @@ shift
 
 [[ -z "${target}" ]] && usage "Missing target"
 
-# vars is passed to labgrid itself; these vars are parsed by UBootStrategy
+# vars is passed to labgrid itself; these vars are parsed by UBootStrategy and
+# UBootProvider
 vars="-V do-bootstrap ${bootstrap} -V do-build ${build} -V do-clean ${clean}"
-vars+=" -V do-send ${send} ${em100_trace}"
+vars+=" -V do-send ${send}"
+[ -n "${em100_trace}" ] && vars+="-V em100-trace ${em100_trace}"
+
 [ -n "${build_dir}" ] && vars+=" -V build-dir ${build_dir}"
 [ -n "${build_dir_extra}" ] && vars+=" -V build-dir-extra ${build_dir_extra}"
+[ -n "${build_adjust}" ] && vars+=" -V build-adjust ${build_adjust}"
 
 # lg_vars is passed to Labgrid's pytest plugin
 lg_vars="--lg-var do-bootstrap ${bootstrap} --lg-var do-build ${build}"
 lg_vars+=" --lg-var do-clean ${clean} --lg-var do-send ${send}"
-lg_vars+=" ${em100_trace}"
+[ -n "${em100_trace}" ] && lg_vars+=" --lg-var em100-trace ${em100_trace}"
+
 [ -n "${build_dir}" ] && lg_vars+=" --lg-var build-dir ${build_dir}"
 [ -n "${build_dir_extra}" ] && lg_vars+=" --lg-var build-dir-extra ${build_dir_extra}"
+[ -n "${build_adjust}" ] && lg_vars+=" --lg-var build-adjust ${build_adjust}"
 
 export vars lg_vars target
+
+# Note that the shell variables are exported through to pytest by ub-pyt,
+# ub-smoke and ub-bisect and then through to the console.labgrid-sjg script
+# which uses them to pass the values as variables to labgrid using the -V
+# option
 
 if [ -n "${V}" ]; then
 	echo "vars: ${vars}"

@@ -9,7 +9,8 @@ usage() {
 	else
 		echo "Connect to the board console interactively"
 	fi
-	echo "Usage: ub-int [-BcDhLRsTv] [-d <dir>] [-x <dir>] [-e <file> ] [-l <file>] <target>"
+	echo "Usage: ub-int [-BcDhLRsTv] [-a <opt> ] [-d <dir>] [-x <dir>] [-e <file> ] [-l <file>] <target>"
+	echo " -a  <opt> Adjust build, e.g. -a NET_LWIP -a ~CMD_MEM"
 	echo " -B  Don't build U-Boot"
 	echo " -c  Run 'make mrproper' before building"
 	echo " -d  <dir> Set build directory"
@@ -30,7 +31,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="Bcd:De:hl:LRsTvx:"
+allowed_args="a:Bcd:De:hl:LRsTvx:"
 . ${mydir}/get_args.sh
 
 ret=0
