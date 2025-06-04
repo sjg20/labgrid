@@ -12,7 +12,7 @@ export LG_COORDINATOR=kea:20408
 export LG_ENV=/vid/software/devel/ubtest/lab/cfg/kea_env.cfg
 
 # Location of the U-Boot test hooks
-export UB_TEST_HOOKS=/vid/software/devel/ubtest/u-boot-test-hooks
+export UB_TEST_HOOKS=/home/sglass/u/test/hooks
 
 # Make sure only one buildman can run at a time, since it uses all CPUs
 export BUILDMAN_PROCESS_LIMIT=1

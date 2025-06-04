@@ -75,6 +75,11 @@ class UBootWriterDriver(Driver):
         elif self.method == 'em100':
             image = os.path.join(image_dir, 'u-boot.rom')
             self.emul.write_image(image)
+        elif self.method == 'rockchip-em100':
+            image = os.path.join(image_dir, 'u-boot.rom')
+            if not os.path.exists(image):
+                image = os.path.join(image_dir, 'u-boot-rockchip-spi.bin')
+            self.emul.write_image(image)
         elif self.method == 'zynq':
             dest = pathlib.PurePath('/')
             spl = os.path.join(image_dir, 'spl/boot.bin')
