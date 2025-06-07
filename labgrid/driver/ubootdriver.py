@@ -1,6 +1,6 @@
 """The U-Boot Module contains the UBootDriver"""
 import re
-
+pattern_u_boot_main_signon
 import attr
 from pexpect import TIMEOUT
 
@@ -11,7 +11,7 @@ from ..step import step
 from .common import Driver
 from .commandmixin import CommandMixin
 
-pattern_u_boot_main_signon = re.compile(b'(U-Boot \\d{4}\\.\\d{2}[^\r\n]*\\))')
+pattern_u_boot_main_signon = re.compile(b'(U-Boot( Concept)? \\d{4}\\.\\d{2}[^\r\n]*\\))')
 
 @target_factory.reg_driver
 @attr.s(eq=False)
@@ -177,7 +177,7 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
                 self.console.sendline(self.password)
 
             elif index == 3:
-                self.version = m.group(1).decode('ASCII')
+                self.version = m.group(2).decode('ASCII')
             elif index == 4:
                 # expect hit a timeout while waiting for a match
                 if before == last_before:
