@@ -1,6 +1,6 @@
 """The U-Boot Module contains the UBootDriver"""
 import re
-pattern_u_boot_main_signon
+
 import attr
 from pexpect import TIMEOUT
 

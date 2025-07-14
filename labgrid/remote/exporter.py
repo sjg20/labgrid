@@ -1105,7 +1105,7 @@ class Exporter:
                 "proxy_required": proxy_req,
             }
             resource = export_cls(config)
-        group[resource_name] = resource
+            group[resource_name] = resource
         self.resource_count += 1
         await self.update_resource(group_name, resource_name)
 
