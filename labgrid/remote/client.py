@@ -687,12 +687,12 @@ class ClientSession:
         if match:
             raise UserError(f"Match {match} has no matching remote resource")
 
-    async def acquire(self):
-        """Acquire a place, marking it unavailable for other clients"""
-        place = self.get_idle_place()
-        if not self.args.allow_unmatched:
-            self.check_matches(place)
+    async def acquire_place(self, place):
+        """Acquire a place, marking it unavailable for other clients
 
+        Args:
+            place (Place): Place to acquire
+        """
         request = labgrid_coordinator_pb2.AcquirePlaceRequest(placename=place.name)
 
         try:
@@ -719,9 +719,19 @@ class ClientSession:
 
             raise ServerError(e.details())
 
-    async def release(self):
-        """Release a previously acquired place"""
-        place = self.get_place()
+    async def acquire(self):
+        """Acquire a place, marking it unavailable for other clients"""
+        place = self.get_idle_place()
+        if not self.args.allow_unmatched:
+            self.check_matches(place)
+        return await self.acquire_place(place)
+
+    async def release_place(self, place):
+        """Release a place, marking it navailable for other clients
+
+        Args:
+            place (Place): Place to release
+        """
         if not place.acquired:
             if self.args.auto:
                 return
@@ -743,6 +753,11 @@ class ClientSession:
             raise ServerError(e.details())
 
         logging.info("released place %s", place.name)
+
+    async def release(self):
+        """Release a previously acquired place"""
+        place = self.get_place()
+        return await self.release_place(place)
 
     async def release_from(self):
         """Release a place, but only if acquired by a specific user"""
@@ -834,7 +849,7 @@ class ClientSession:
             if self.role is None:
                 self.role = find_role_by_place(self.env.config.get_targets(), place.name)
                 if self.role is not None:
-                    print(f"Selected role {self.role} from configuration file")
+                    logging.info(f"Selected role {self.role} from configuration file")
             target = self.env.get_target(self.role)
         if target:
             self.set_initial_state(target)
