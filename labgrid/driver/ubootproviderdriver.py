@@ -43,7 +43,7 @@ class UBootProviderDriver(Driver):
         do-clean (str): If set to "1" this cleans the build before starting,
             otherwise it does an incremental build
         build-dir (str): If set, this is used as the build directory for U-Boot
-        build-dir-extr (str): If set, this is used as the 'extra' build
+        build-dir-extra (str): If set, this is used as the 'extra' build
             directory for U-Boot
         process-limit (int): Limits the number of buildman processes which can
             be running jobs at once. Set this to 1 to avoid over-taxing your
@@ -297,11 +297,13 @@ class UBootProviderDriver(Driver):
         Returns:
             str: work directory for this board
         """
+        if not os.path.exists(self.workdirs):
+            os.mkdir(self.workdirs)
         workdir = os.path.join(self.workdirs, board)
         if not os.path.exists(workdir):
             cmd = [
                 'git',
-                '--git-dir', self.source_dir,
+                '--git-dir', f'{self.sourcedir}/.git',
                 'worktree',
                 'add',
                 board,

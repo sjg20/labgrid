@@ -82,7 +82,7 @@ class UBootStrategy(Strategy):
             image_dirs = builder.build()
         else:
             image_dirs = builder.get_build_paths()
-        if len(image_dirs) == 1 or image_dirs[1] == 'None':
+        if len(image_dirs) == 1 or image_dirs[1] is None:
             msg = f'dir {image_dirs[0]}'
         else:
             msg = f'dirs {image_dirs[0]} and {image_dirs[1]}'
