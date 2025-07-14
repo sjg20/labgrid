@@ -19,9 +19,15 @@ class ConsoleExpectMixin:
         self._expect = PtxExpect(self)
         self._output = bytearray()
 
-    def read_output(self):
+    def read_output(self, clear=True):
+        """Read all the output received so far, clearing the buffer
+
+        Args:
+            clear (bool): True to clear the output for the next caller
+        """
         output = self._output
-        self._output = bytearray()
+        if clear:
+            self._output = bytearray()
         return output
 
     @Driver.check_active

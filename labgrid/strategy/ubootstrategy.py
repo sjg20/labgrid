@@ -193,7 +193,7 @@ class UBootStrategy(Strategy):
                 # interrupt uboot
                 self.target.activate(self.uboot)
             except TIMEOUT:
-                output = self.console.read_output()
+                output = self.console.read_output(True)
                 sys.stdout.buffer.write(output)
                 raise
 

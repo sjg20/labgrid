@@ -2,6 +2,7 @@
 import re
 
 import attr
+import sys
 from pexpect import TIMEOUT
 
 from ..factory import target_factory
@@ -187,16 +188,14 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
                     self.console.sendline("")
 
                 if timeout.expired:
-                    output = self.console.read_output()
-                    for line in output.splitlines():
-                        print(line.decode('utf-8', errors='replace'))
+                    sys.stdout.buffer.write(self.console.read_output(True))
                     raise TIMEOUT(
                         f"Timeout of {self.login_timeout} seconds exceeded during waiting for login"
                     )
 
             last_before = before
 
-        output = self.console.read_output()
+        output = self.console.read_output(False)
         pos = output.find(self.autoboot.encode('utf-8'))
         if pos == -1:
             pos = output.find(self.prompt.encode('utf-8'))
