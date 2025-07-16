@@ -201,7 +201,7 @@ class UBootStrategy(Strategy):
             #output = self.console.read_output()
             #sys.stdout.buffer.write(output)
             duration = time.time() - start
-            self.logger.info(f'\n{{lab ready in {duration:.1f}s: {self.uboot.version}}}')
+            print(f'\n{{lab ready in {duration:.1f}s: {self.uboot.version}}}')
         elif status == Status.shell:
             # transition to uboot
             self.transition(Status.uboot)
