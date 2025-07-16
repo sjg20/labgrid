@@ -178,7 +178,7 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
                 self.console.sendline(self.password)
 
             elif index == 3:
-                self.version = m.group(2).decode('ASCII')
+                self.version = m.group(1).decode('ASCII')
             elif index == 4:
                 # expect hit a timeout while waiting for a match
                 if before == last_before:

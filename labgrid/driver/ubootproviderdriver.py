@@ -298,7 +298,7 @@ class UBootProviderDriver(Driver):
             str: work directory for this board
         """
         if not os.path.exists(self.workdirs):
-            os.mkdir(self.workdirs)
+            os.makedirs(self.workdirs)
         workdir = os.path.join(self.workdirs, board)
         if not os.path.exists(workdir):
             cmd = [
