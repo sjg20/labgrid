@@ -3,6 +3,19 @@ import pytest
 import subprocess
 import sys
 
+def maybe_write_log(request, target, output=None):
+    clog = request.config.option.lg_console_logfile
+    if clog:
+        print(f"\nWriting console output to {clog}...")
+
+        if output is None:
+            console = target.get_active_driver('ConsoleProtocol')
+            output = console.read_output()
+        with open(clog, 'wb') as f:
+            f.write(output)
+            print(f"Successfully wrote {len(output)} bytes to {clog}")
+
+
 @pytest.fixture
 def u_boot(request, target, strategy):
     if request.config.option.lg_use_running_system:
@@ -21,17 +34,9 @@ def u_boot(request, target, strategy):
             console = target.get_active_driver('ConsoleProtocol')
             output = console.read_output()
             sys.stdout.buffer.write(output)
+            maybe_write_log(request, target, output)
             raise
 
     yield strategy.uboot
 
-    clog = request.config.option.lg_console_logfile
-    if clog:
-        print(f"\nWriting console output to {clog}...")
-
-        # The 'target' is available from the fixture arguments
-        console = target.get_active_driver('ConsoleProtocol')
-        output = console.read_output()
-        with open(clog, 'wb') as f:
-            f.write(output)
-            print(f"Successfully wrote {len(output)} bytes to {clog}.")
+    maybe_write_log(request, target)

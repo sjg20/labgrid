@@ -178,6 +178,8 @@ class UBootProviderDriver(Driver):
         self.logger.debug('cwd:%s cmd:%s', os.getcwd(), cmd)
         try:
             fbcmd = cmd + ['--fallback-mrproper'] if self.build_target else cmd
+            print('fbcmd', fbcmd)
+            print('fbcmd', ' '.join(fbcmd))
             out = processwrapper.check_output(fbcmd, cwd=cwd, env=env)
         except subprocess.CalledProcessError as exc:
             if b'--fallback-mrproper' in exc.stdout:

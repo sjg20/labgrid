@@ -192,7 +192,7 @@ class UBootDriver(CommandMixin, Driver, CommandProtocol, LinuxBootProtocol):
                     self.console.sendline("")
 
                 if timeout.expired:
-                    output = self.console.read_output()
+                    output = self.console.read_output(False)
                     for line in output.splitlines():
                         print(line.decode('utf-8', errors='replace'))
                     raise TIMEOUT(
