@@ -32,17 +32,23 @@ mydir=$(dirname $0)
 allowed_args="a:Bcd:De:hl:RsTvx:"
 . ${mydir}/get_args.sh
 
-cd ${mydir}
-
 if ! labgrid-client -p ${target} acquire --allow-unmatched; then
 	exit 1
 fi
 
+# use_running_system comes from the get_args.sh script. It is either empty, or
+# contains --use-running-system (lg_use_running_system contains
+# --lg-use-running-system if not empty)
+
+# Various variables are exported from this script and made available to the
+# u-boot-hooks scripts. For example, 'strategy' and 'console_log' are used in
+# console.labgrid
+
 ret=0
 pytest --lg-env "${LG_ENV}" --lg-coordinator="${LG_COORDINATOR}" \
 	--lg-log --lg-colored-steps --lg-target ${target} \
-	${lg_vars} -q \
-	 -k test_uboot_smoke || ret=$?
+	${lg_vars} -q ${lg_use_running_system} ${lg_console_log} \
+	-k test_uboot_smoke ${mydir} || ret=$?
 
 if ! labgrid-client -p ${target} release -a; then
 	exit $?

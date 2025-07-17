@@ -33,8 +33,9 @@ export reset=1
 # selects the target strategy-state to use, in Labgrid's UBootStrategy
 export strategy="-s start -e off"
 
-# --no-prompt-wait to tell pytest not to wait for a U-Boot prompt
-export no_prompt_wait=
+# --use-running-system to tell pytest not to wait for a U-Boot prompt
+export use_running_system=
+export lg_use_running_system=
 
 # build path to use (empty to use default)
 export build_dir=
@@ -50,6 +51,7 @@ export debug=
 
 # console log file
 export console_log=
+export lg_console_log=
 
 # console listen-only
 export listen_only=
@@ -82,6 +84,7 @@ while getopts "${allowed_args}" opt; do
 	  ;;
 	l )
 	  console_log="--logfile $OPTARG"
+	  lg_console_log="--lg-console-logfile $OPTARG"
 	  ;;
 	L )
 	  listen_only="--listenonly"
@@ -94,7 +97,8 @@ while getopts "${allowed_args}" opt; do
 	  bootstrap=0
 	  build=0
 	  strategy=
-	  no_prompt_wait="--no-prompt-wait"
+	  use_running_system="--use-running-system"
+	  lg_use_running_system="--lg-use-running-system"
 	  ;;
 	T )
 	  bootstrap=0

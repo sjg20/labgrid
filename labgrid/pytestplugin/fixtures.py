@@ -1,6 +1,7 @@
 import os
 import subprocess
 import pytest
+import warnings
 
 from ..exceptions import NoResourceFoundError, NoDriverFoundError
 from ..remote.client import UserError
@@ -63,6 +64,16 @@ def pytest_addoption(parser):
         dest='lg_var',
         metavar='VARIABLE',
         help='Add a variable value (-V <var> <value>)')
+    group.addoption(
+        '--lg-use-running-system',
+        action='store_true',
+        dest='lg_use_running_system',
+        help="Assume that the machine is ready and don't wait for a prompt")
+    group.addoption(
+        '--lg-console-logfile',
+        action='store',
+        dest='lg_console_logfile',
+        help='name of console-log file, used to record board console')
 
     # We would like to use a default value hook for log_format in the logging plugin,
     # similar to the approach below:
