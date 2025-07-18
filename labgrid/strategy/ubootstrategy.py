@@ -21,8 +21,9 @@ class Status(enum.Enum):
         start: Board has started booting
         uboot: Board has stopped at the U-Boot prompt
         shell: Board has stopped at the Linux prompt
+        restart: Board was/is at a prompt but needs to be restarted
     """
-    unknown, off, bootstrap, start, uboot, shell = range(6)
+    unknown, off, bootstrap, start, uboot, shell, restart = range(7)
 
 
 @target_factory.reg_driver
