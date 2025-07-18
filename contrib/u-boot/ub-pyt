@@ -45,7 +45,7 @@ tmpfile=$(mktemp)
 if grep -q -- "--role" test/py/conftest.py; then
 	[ -n "${strategy}" ] && strategy="-s uboot -e off"
 	PYTHONPATH="${UB_TEST_HOOKS}/py/${HOSTNAME}" ./test/py/test.py -s \
-		${use_running_system} ${console_log} --role "${target}" \
+		${use_running_system} --role "${target}" \
 		${lg_vars} -q -k "$*"
 else
 	# An older U-Boot is being used, which doesn't have the '--role' feature

@@ -45,6 +45,7 @@ class ProcessRunner(subprocess.Popen):
         self.print_on_silent_log = print_on_silent_log
         self.input = input
         self.args = args
+        self.cwd = cwd
 
         self.res = []
         if stdout:
@@ -149,8 +150,9 @@ class ProcessRunner(subprocess.Popen):
             processwrapper.disable_print()
 
         if self.returncode != 0:
-            raise subprocess.CalledProcessError(self.returncode, self.args,
-                                                output=b'\r'.join(self.res))
+            raise subprocess.CalledProcessError(
+                self.returncode, self.args + [f'cwd={self.cwd}'],
+                output=b'\r'.join(self.res))
 
     def combined_output(self, remove_cr=True):
         # this converts '\r\n' to '\n' to be more compatible to the behaviour
