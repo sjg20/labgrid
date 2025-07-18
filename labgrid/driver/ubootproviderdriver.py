@@ -178,8 +178,6 @@ class UBootProviderDriver(Driver):
         self.logger.debug('cwd:%s cmd:%s', os.getcwd(), cmd)
         try:
             fbcmd = cmd + ['--fallback-mrproper'] if self.build_target else cmd
-            print('fbcmd', fbcmd)
-            print('fbcmd', ' '.join(fbcmd))
             out = processwrapper.check_output(fbcmd, cwd=cwd, env=env)
         except subprocess.CalledProcessError as exc:
             if b'--fallback-mrproper' in exc.stdout:
@@ -310,6 +308,7 @@ class UBootProviderDriver(Driver):
                 'add',
                 board,
                 '--detach',
+                '-f',  # Force, since the tree may have been created in a tmpdir
             ]
             self.logger.info('Setting up worktree in %s', workdir)
             processwrapper.check_output(cmd, cwd=self.workdirs)

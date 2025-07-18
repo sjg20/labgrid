@@ -46,7 +46,7 @@ class Strategy(Driver):  # reuse driver handling
     def transition(self, status):
         raise NotImplementedError(f"Strategy.transition() is not implemented for {self.__class__.__name__}")
 
-    def force(self, status):
+    def force(self, status, assume_ready):
         raise NotImplementedError(f"Strategy.force() is not implemented for {self.__class__.__name__}")
 
     def prepare_export(self):

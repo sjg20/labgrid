@@ -832,7 +832,7 @@ class ClientSession:
             strategy = target.get_driver("Strategy")
             if self.args.initial_state:
                 print(f"Setting initial state to {self.args.initial_state}")
-                strategy.force(self.args.initial_state)
+                strategy.force(self.args.initial_state, self.args.assume_ready)
             logging.info("Transitioning into state %s", self.args.state)
             strategy.transition(self.args.state)
 
@@ -1773,6 +1773,12 @@ def main():
         type=str,
         default=initial_state,
         help="strategy state to force into before switching to desired state",
+    )
+    parser.add_argument(
+        '--assume-ready',
+        action='store_true',
+        default=False,
+        help="Assume that the device is already in the correct state"
     )
     parser.add_argument(
         '-e',
