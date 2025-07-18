@@ -107,7 +107,6 @@ class ClientSession:
             ("grpc.http2.max_pings_without_data", 0),  # no limit
         ]
 
-        print('channel');
         self.channel = grpc.aio.insecure_channel(
             target=self.address,
             options=channel_options,
@@ -122,7 +121,6 @@ class ClientSession:
 
     async def start(self):
         """Starts receiving resource and place updates from the coordinator."""
-        print('start')
         self.resources = {}
         self.places = {}
 
@@ -130,7 +128,6 @@ class ClientSession:
         msg = labgrid_coordinator_pb2.ClientInMessage()
         msg.startup.version = labgrid_version()
         msg.startup.name = f"{self.gethostname()}/{self.getuser()}"
-        print('msg', msg)
         self.out_queue.put_nowait(msg)
         msg = labgrid_coordinator_pb2.ClientInMessage()
         msg.subscribe.all_places = True
@@ -138,7 +135,6 @@ class ClientSession:
         msg = labgrid_coordinator_pb2.ClientInMessage()
         msg.subscribe.all_resources = True
         self.out_queue.put_nowait(msg)
-        print('await')
         await self.sync_with_coordinator()
         if self.stopping.is_set():
             raise ServerError("Could not connect to coordinator")
@@ -1623,33 +1619,6 @@ def ensure_event_loop(external_loop=None):
     return loop
 
 
-async def start_session_async(
-    address: str, *, extra: Dict[str, Any] = None, debug: bool = False, loop: "asyncio.AbstractEventLoop | None" = None
-):
-    """
-    Starts a ClientSession.
-
-    Args:
-        address: coordinator address as HOST[:PORT], PORT defaults to 20408
-        extra: additional kwargs for ClientSession
-        debug: set debug mode of the event loop
-        loop: explicit event loop to use (otherwise a previously stashed loop,
-              if retrievable the current thread's loop or a new loop is used)
-    """
-
-    if extra is None:
-        extra = {}
-
-    if debug:
-        loop.set_debug(True)
-
-    address = proxymanager.get_grpc_address(address, default_port=20408)
-
-    session = ClientSession(address, loop, **extra)
-    await session.start()
-    return session
-
-
 def start_session(
     address: str, *, extra: Dict[str, Any] = None, debug: bool = False, loop: "asyncio.AbstractEventLoop | None" = None
 ):
@@ -1664,10 +1633,19 @@ def start_session(
               if retrievable the current thread's loop or a new loop is used)
     """
     loop = ensure_event_loop(loop)
-    session = loop.run_until_complete(
-        start_session_async(address=address, extra=extra, debug=debug,
-                            loop=loop))
+
+    if extra is None:
+        extra = {}
+
+    if debug:
+        loop.set_debug(True)
+
+    address = proxymanager.get_grpc_address(address, default_port=20408)
+
+    session = ClientSession(address, loop, **extra)
+    loop.run_until_complete(session.start())
     return session
+
 
 def find_role_by_place(config, place):
     for role, role_config in config.items():
