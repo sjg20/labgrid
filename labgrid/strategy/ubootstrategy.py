@@ -177,7 +177,20 @@ class UBootStrategy(Strategy):
         if os.getenv('U_BOOT_SOURCE_DIR'):
             print('{lab mode}')
 
-        if not self.bootstrapped and get_var('do-bootstrap', '0') == '1':
+        do_bootstrap = False
+        print('1do_bootstrap', do_bootstrap)
+        if not self.bootstrapped:
+            if get_var('do-bootstrap', '0') == '1':
+                do_bootstrap = True
+
+            # If the board is being reset and we are using 'send', we must do a
+            # bootstrap so that the board will actually boot what we want
+            if (not do_bootstrap and get_var('do-reset', '0') == '1' and
+                    self.use_send()):
+                print("Forcing bootstrap for 'send' method")
+                do_bootstrap = True
+        print(f"2do_bootstrap {do_bootstrap} reset {get_var('do-reset', '0')} use_send {self.use_send()}")
+        if do_bootstrap:
             self.transition(Status.bootstrap)
         else:
             writer = self.target.get_driver("UBootWriterDriver")

@@ -127,7 +127,7 @@ shift
 # vars is passed to labgrid itself; these vars are parsed by UBootStrategy and
 # UBootProvider
 vars="-V do-bootstrap ${bootstrap} -V do-build ${build} -V do-clean ${clean}"
-vars+=" -V do-send ${send}"
+vars+=" -V do-send ${send} -V do-reset ${reset}"
 [ -n "${em100_trace}" ] && vars+="-V em100-trace ${em100_trace}"
 
 [ -n "${build_dir}" ] && vars+=" -V build-dir ${build_dir}"
@@ -137,6 +137,7 @@ vars+=" -V do-send ${send}"
 # lg_vars is passed to Labgrid's pytest plugin
 lg_vars="--lg-var do-bootstrap ${bootstrap} --lg-var do-build ${build}"
 lg_vars+=" --lg-var do-clean ${clean} --lg-var do-send ${send}"
+lg_vars+=" --lg-var do-reset ${reset}"
 [ -n "${em100_trace}" ] && lg_vars+=" --lg-var em100-trace ${em100_trace}"
 
 [ -n "${build_dir}" ] && lg_vars+=" --lg-var build-dir ${build_dir}"
