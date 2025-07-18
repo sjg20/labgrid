@@ -49,7 +49,7 @@ ret=0
 pytest --lg-env "${LG_ENV}" --lg-coordinator="${LG_COORDINATOR}" \
 	--lg-log --lg-colored-steps --lg-target ${target} \
 	${lg_vars} -q ${lg_use_running_system} ${lg_console_log} \
-	${log_output} ${lg_log_output} \
+	${lg_log_output} \
 	-k test_uboot_smoke ${mydir} || ret=$?
 
 if ! labgrid-client -p ${target} release -a; then
