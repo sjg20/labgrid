@@ -156,6 +156,8 @@ class UBootStrategy(Strategy):
             msg = f'dir {image_dirs[0]}'
         else:
             msg = f'dirs {image_dirs[0]} and {image_dirs[1]}'
+            print('image_dirs[0]', image_dirs[0])
+            print('image_dirs[1]', type(image_dirs[1]))
         print(f"Bootstrapping U-Boot from {msg}")
 
         writer = self.target.get_driver("UBootWriterDriver")
@@ -178,7 +180,6 @@ class UBootStrategy(Strategy):
             print('{lab mode}')
 
         do_bootstrap = False
-        print('1do_bootstrap', do_bootstrap)
         if not self.bootstrapped:
             if get_var('do-bootstrap', '0') == '1':
                 do_bootstrap = True
@@ -189,7 +190,6 @@ class UBootStrategy(Strategy):
                     self.use_send()):
                 print("Forcing bootstrap for 'send' method")
                 do_bootstrap = True
-        print(f"2do_bootstrap {do_bootstrap} reset {get_var('do-reset', '0')} use_send {self.use_send()}")
         if do_bootstrap:
             self.transition(Status.bootstrap)
         else:

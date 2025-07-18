@@ -59,6 +59,10 @@ export listen_only=
 # set EM100-Pro into trace mode and write to a file
 export em100_trace=
 
+# log file for internal Labgrid logging (not the board's console)
+export log_output=
+export lg_log_output=
+
 while getopts "${allowed_args}" opt; do
 	case $opt in
 	a )
@@ -88,6 +92,10 @@ while getopts "${allowed_args}" opt; do
 	  ;;
 	L )
 	  listen_only="--listenonly"
+	  ;;
+	o )
+	  log_output="--log-output $OPTARG"
+	  lg_log_output="--lg_log-output $OPTARG"
 	  ;;
 	s )
 	  send=1

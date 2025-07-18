@@ -308,7 +308,6 @@ class UBootProviderDriver(Driver):
                 'add',
                 board,
                 '--detach',
-                '-f',  # Force, since the tree may have been created in a tmpdir
             ]
             self.logger.info('Setting up worktree in %s', workdir)
             processwrapper.check_output(cmd, cwd=self.workdirs)

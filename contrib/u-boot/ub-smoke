@@ -17,6 +17,7 @@ usage() {
 	echo " -e  <file> Log Dediprog EM100-Pro trace to a file"
 	echo " -h  Help"
 	echo " -l  <file> Log console output to file"
+	echo " -o  <file> Set labgrid log-output file"
 	echo " -R  Don't reset the board, just connect as is"
 	echo " -s  Send over USB (instead of writing to boot media)"
 	echo " -T  Don't bootstrap U-Boot"
@@ -29,7 +30,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="a:Bcd:De:hl:RsTvx:"
+allowed_args="a:Bcd:De:hl:o:RsTvx:"
 . ${mydir}/get_args.sh
 
 if ! labgrid-client -p ${target} acquire --allow-unmatched; then
@@ -48,6 +49,7 @@ ret=0
 pytest --lg-env "${LG_ENV}" --lg-coordinator="${LG_COORDINATOR}" \
 	--lg-log --lg-colored-steps --lg-target ${target} \
 	${lg_vars} -q ${lg_use_running_system} ${lg_console_log} \
+	${log_output} ${lg_log_output} \
 	-k test_uboot_smoke ${mydir} || ret=$?
 
 if ! labgrid-client -p ${target} release -a; then

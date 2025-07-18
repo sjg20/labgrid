@@ -18,6 +18,7 @@ usage() {
 	echo " -e  <file> Log Dediprog EM100-Pro trace to a file"
 	echo " -h  Help"
 	echo " -l  <file> Log console output to file"
+	echo " -o  <file> Set labgrid log-output file"
 	echo " -s  Send over USB (instead of writing to boot media)"
 	echo " -T  Don't bootstrap U-Boot"
 	echo " -v  Verbose mode"
@@ -29,12 +30,12 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="a:Bcd:De:hl:sTvx:"
+allowed_args="a:Bcd:De:hl:o:sTvx:"
 . ${mydir}/get_args.sh
 
 ret=0
-labgrid-client ${V} ${debug} ${vars} -r ${target} -s uboot -a console \
-	${console_log} ${listen_only} || ret=$?
+labgrid-client ${V} ${debug} ${vars} -r ${target} -s uboot -a ${log_output}
+	console ${console_log} ${listen_only} ${log_output} || ret=$?
 
 labgrid-client ${V} -r "${target}" release -a
 

@@ -18,6 +18,7 @@ usage() {
 	echo " -d  <dir> Set build directory"
 	echo " -D  Enable debugging"
 	echo " -h  Help"
+	echo " -o  <file> Set labgrid log-output file"
 	echo " -s  Send over USB (instead of writing to boot media)"
 	echo " -v  Verbose mode"
 	echo " -x  <dir> Set extra build directory"
@@ -28,7 +29,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="a:cd:Dhsvx:"
+allowed_args="a:cd:Dho:svx:"
 . ${mydir}/get_args.sh
 
 commit="$1"

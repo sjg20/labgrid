@@ -832,7 +832,7 @@ class ClientSession:
             strategy = target.get_driver("Strategy")
             if self.args.initial_state:
                 print(f"Setting initial state to {self.args.initial_state}")
-                strategy.force(self.args.initial_state, self.args.assume_ready)
+                strategy.force(self.args.initial_state)
             logging.info("Transitioning into state %s", self.args.state)
             strategy.transition(self.args.state)
 
@@ -1572,6 +1572,8 @@ class ClientSession:
                 values[name] = drv.query_info(name)
 
             for name, val in values.items():
+                if val is None:
+                    val = ''
                 if self.args.show_name:
                     print(f'{cls_name}:{name} {val}')
                 else:
@@ -1775,12 +1777,6 @@ def main():
         help="strategy state to force into before switching to desired state",
     )
     parser.add_argument(
-        '--assume-ready',
-        action='store_true',
-        default=False,
-        help="Assume that the device is already in the correct state"
-    )
-    parser.add_argument(
         '-e',
         '--end-state',
         type=str,
@@ -1789,6 +1785,13 @@ def main():
     )
     parser.add_argument(
         "-d", "--debug", action="store_true", default=False, help="enable debug mode (show python tracebacks)"
+    )
+    parser.add_argument(
+        '-l',
+        '--log-output',
+        type=str,
+        metavar='LOG_FILENAME',
+        help="file to send logging output to, instead of stdout"
     )
     parser.add_argument("-v", "--verbose", action="count", default=0)
     parser.add_argument("-P", "--proxy", type=str, help="proxy connections via given ssh host")
@@ -2151,12 +2154,23 @@ def main():
     else:
         args.leftover = leftover
 
+    logger = logging.getLogger()
+    if args.log_output:
+        # Clear all existing handlers from the logger
+        logger.handlers = []
+
+        # Create and add the new file handler
+        file_handler = logging.FileHandler(args.log_output)
+        file_formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
+
     if args.verbose:
-        logging.getLogger().setLevel(logging.INFO)
+        logger.setLevel(logging.INFO)
     if args.verbose > 1:
-        logging.getLogger().setLevel(logging.CONSOLE)
+        logger.setLevel(logging.CONSOLE)
     if args.debug or args.verbose > 2:
-        logging.getLogger().setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
 
     if not args.config and (args.state or args.initial_state):
         print("Setting the state requires a configuration file", file=sys.stderr)

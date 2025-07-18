@@ -15,6 +15,7 @@ usage() {
 	echo " -e  <file> Log Dediprog EM100-Pro trace to a file"
 	echo " -h  Help"
 	echo " -l <file> Log console output to file"
+	echo " -o  <file> Set labgrid log-output file"
 	echo " -R  Don't reset the board, just connect as is"
 	echo " -s  Send over USB (instead of writing to boot media)"
 	echo " -T  Don't bootstrap U-Boot"
@@ -28,7 +29,7 @@ mydir=$(dirname $0)
 
 . ${mydir}/lg-env
 
-allowed_args="a:Bcehl:RsTv"
+allowed_args="a:Bcehl:o:RsTv"
 . ${mydir}/get_args.sh
 
 tmpfile=$(mktemp)
