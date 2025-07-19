@@ -1777,6 +1777,12 @@ def main():
         help="strategy state to force into before switching to desired state",
     )
     parser.add_argument(
+        '--assume-ready',
+        action='store_true',
+        default=False,
+        help="Assume that the device is already in the correct state"
+    )
+    parser.add_argument(
         '-e',
         '--end-state',
         type=str,
