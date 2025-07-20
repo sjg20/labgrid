@@ -35,7 +35,6 @@ mydir=$(dirname $0)
 allowed_args="a:Bcd:De:hl:Lo:RsTvx:"
 . ${mydir}/get_args.sh
 
-echo log_output ${log_output}
 ret=0
 labgrid-client ${V} ${debug} ${vars} -r ${target} ${strategy} -a ${log_output} \
 	console ${console_log} ${listen_only} || ret=$?

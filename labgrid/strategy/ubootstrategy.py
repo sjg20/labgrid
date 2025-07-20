@@ -152,12 +152,10 @@ class UBootStrategy(Strategy):
             image_dirs = builder.build()
         else:
             image_dirs = builder.get_build_paths()
-        if len(image_dirs) == 1 or image_dirs[1] is None:
+        if len(image_dirs) == 1 or not image_dirs[1]:
             msg = f'dir {image_dirs[0]}'
         else:
             msg = f'dirs {image_dirs[0]} and {image_dirs[1]}'
-            print('image_dirs[0]', image_dirs[0])
-            print('image_dirs[1]', type(image_dirs[1]))
         print(f"Bootstrapping U-Boot from {msg}")
 
         writer = self.target.get_driver("UBootWriterDriver")
@@ -279,7 +277,6 @@ class UBootStrategy(Strategy):
             raise
 
     def force(self, status, assume_ready):
-        print('assume_ready', assume_ready)
         if not isinstance(status, Status):
             status = Status[status]
         if status == Status.off:
@@ -292,4 +289,3 @@ class UBootStrategy(Strategy):
         else:
             raise StrategyError("can not force state {}".format(status))
         self.status = status
-        print(f'force to {status} done')
